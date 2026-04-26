@@ -1,0 +1,79 @@
+{
+  "name": "Random Quote API",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "random-quote",
+        "httpMethod": "GET",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "Webhook",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://dummyjson.com/quotes/random",
+        "responseFormat": "json",
+        "options": {}
+      },
+      "id": "HTTP Request",
+      "name": "Get Random Quote",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "quote",
+              "value": "={{$json[\"quote\"]}}"
+            },
+            {
+              "name": "author",
+              "value": "={{$json[\"author\"]}}"
+            }
+          ]
+        }
+      },
+      "id": "Set",
+      "name": "Format Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [750, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Random Quote",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Random Quote": {
+      "main": [
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {},
+  "versionId": "1"
+}

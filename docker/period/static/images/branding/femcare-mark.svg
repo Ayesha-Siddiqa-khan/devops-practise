@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">FemCare AI mark</title>
+  <desc id="desc">Gradient shield and heart line icon</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff9dcb"/>
+      <stop offset="55%" stop-color="#ba7cff"/>
+      <stop offset="100%" stop-color="#7460ff"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="44%" r="68%">
+      <stop offset="0%" stop-color="#ffd6ea" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#2b1f4a" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="256" height="256" rx="56" fill="#2a1e45"/>
+  <circle cx="128" cy="112" r="100" fill="url(#glow)"/>
+
+  <path d="M64 62v74c0 26 20 48 50 58 10 4 15 6 14 6s4-2 14-6c30-10 50-32 50-58V62c-24-2-43-10-64-22-21 12-40 20-64 22Z"
+        fill="none" stroke="url(#bg)" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <path d="M92 152c16-17 35-26 57-27 11-1 20-5 28-12"
+        fill="none" stroke="#ff87bc" stroke-width="9" stroke-linecap="round"/>
+  <path d="M95 143c-5-8-8-17-8-27 0-19 13-35 31-40"
+        fill="none" stroke="#ffd0e6" stroke-width="7" stroke-linecap="round"/>
+
+  <circle cx="176" cy="84" r="3" fill="#ffd8ed"/>
+  <circle cx="184" cy="92" r="2" fill="#ffb7dd"/>
+  <circle cx="168" cy="92" r="2" fill="#c6a8ff"/>
+</svg>

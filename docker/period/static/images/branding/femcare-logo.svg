@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 280" role="img" aria-labelledby="title desc">
+  <title id="title">FemCare AI logo</title>
+  <desc id="desc">FemCare AI wordmark with gradient health mark</desc>
+  <defs>
+    <linearGradient id="logo-grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff9dcb"/>
+      <stop offset="55%" stop-color="#ba7cff"/>
+      <stop offset="100%" stop-color="#7460ff"/>
+    </linearGradient>
+    <linearGradient id="text-grad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#ff8fc2"/>
+    </linearGradient>
+    <radialGradient id="halo" cx="35%" cy="34%" r="70%">
+      <stop offset="0%" stop-color="#ffd8ea" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#2b1f4a" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="960" height="280" rx="28" fill="#2a1e45"/>
+  <circle cx="156" cy="122" r="116" fill="url(#halo)"/>
+
+  <path d="M58 44v92c0 31 24 56 58 68 12 4 18 7 17 7s5-3 17-7c34-12 58-37 58-68V44c-30-3-50-12-75-28-25 16-45 25-75 28Z"
+        fill="none" stroke="url(#logo-grad)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <path d="M94 164c18-20 40-30 65-32 12-1 23-5 34-13"
+        fill="none" stroke="#ff84bb" stroke-width="10" stroke-linecap="round"/>
+  <path d="M96 154c-6-10-9-20-9-31 0-22 15-41 36-47"
+        fill="none" stroke="#ffd2e7" stroke-width="8" stroke-linecap="round"/>
+
+  <circle cx="198" cy="74" r="4" fill="#ffd8ed"/>
+  <circle cx="210" cy="88" r="3" fill="#f7b7dd"/>
+  <circle cx="184" cy="88" r="3" fill="#c6a8ff"/>
+
+  <text x="262" y="188" fill="url(#text-grad)" font-size="104" font-family="Manrope, Segoe UI, Arial, sans-serif" font-weight="800" letter-spacing="0.5">FemCare AI</text>
+</svg>

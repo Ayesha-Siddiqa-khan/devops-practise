@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}FemCare AI | Mood Checker Chatbot{% endblock %}
+
+{% block content %}
+<section class="rounded-3xl p-6 md:p-8 text-white hero-gradient animate-fade-up">
+  <p class="text-fem-100 text-sm uppercase tracking-wide">Women Mental Wellness</p>
+  <h1 class="text-2xl md:text-4xl font-extrabold mt-2">Mood Checker Chatbot</h1>
+  <p class="text-fem-100 mt-3 max-w-3xl">A calm emotional support assistant for mood reflection, stress release, and gentle coping ideas.</p>
+</section>
+
+<section class="mt-6 grid xl:grid-cols-5 gap-4">
+  <article class="glass-panel p-5 xl:col-span-3">
+    <div class="flex items-center justify-between gap-3">
+      <h2 class="text-lg font-bold">Emotional Support Chat</h2>
+      <div class="flex items-center gap-2">
+        <span class="text-xs bg-fem-100 text-fem-700 px-3 py-1 rounded-full">Safe, non-diagnostic</span>
+        <button id="chat-reset" type="button" class="workout-secondary-btn">Clear Chat</button>
+      </div>
+    </div>
+
+    <div id="chat-window" class="chat-window mt-4">
+      <div class="chat-bubble chat-assistant">
+        <p>Hi, I am here with you.</p>
+        <p>How are you feeling today?</p>
+      </div>
+    </div>
+
+    <form id="chat-form" class="mt-4 flex gap-2">
+      <input id="chat-input" class="input-field" type="text" placeholder="What's been on your mind?" maxlength="280" required>
+      <button class="btn-primary" type="submit">Send</button>
+    </form>
+
+    <p id="chat-status" class="text-xs text-slate-500 mt-2">Your messages are used only for this session and not for diagnosis.</p>
+  </article>
+
+  <article class="glass-panel p-5 xl:col-span-2">
+    <h2 class="text-lg font-bold">Quick Coping Tools</h2>
+    <div class="mt-4 grid gap-3 text-sm">
+      <div class="tip-item"><i class="fa-solid fa-lungs text-emerald-600"></i><p>Try 4-6 breathing for 2 minutes.</p></div>
+      <div class="tip-item"><i class="fa-solid fa-book text-emerald-600"></i><p>Write one page of journaling.</p></div>
+      <div class="tip-item"><i class="fa-solid fa-glass-water text-emerald-600"></i><p>Drink water slowly and rest your shoulders.</p></div>
+      <div class="tip-item"><i class="fa-solid fa-music text-emerald-600"></i><p>Listen to calming music for 10 minutes.</p></div>
+      <div class="tip-item"><i class="fa-solid fa-person-walking text-emerald-600"></i><p>Take a gentle walk in fresh air.</p></div>
+    </div>
+
+    <div class="status-card status-monitor mt-4">
+      <p class="status-title">⚠️ Safety Note</p>
+      <p class="text-sm mt-2">If you feel unsafe, hopeless, or at risk of harm, contact a trusted person and seek professional help immediately.</p>
+    </div>
+  </article>
+</section>
+
+<section class="mt-5">
+  <div class="rounded-2xl border border-rose-200 bg-rose-50 p-4">
+    <p class="text-sm text-rose-800"><strong>Medical Disclaimer:</strong> This application is for educational and informational purposes only. It is not a substitute for professional medical advice, diagnosis, or treatment. In emergencies, consult a healthcare professional immediately.</p>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/mood_chat.js', v='20260330d') }}"></script>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}FemCare AI | {{ module.title }}{% endblock %}
+
+{% block content %}
+<section class="glass-panel p-6 max-w-4xl">
+  <p class="text-xs uppercase tracking-wide text-fem-700">Module</p>
+  <h1 class="text-3xl font-extrabold mt-2">{{ module.title }}</h1>
+  <p class="text-slate-600 mt-3">{{ module.description }}</p>
+  <p class="text-xs mt-3 text-slate-500">Category: {{ module.category }}</p>
+
+  <div class="mt-5 flex flex-wrap items-center gap-3">
+    {% if module.target_url %}
+      <a class="btn-primary" href="{{ module.target_url }}">Open Module Tool</a>
+    {% else %}
+      <span class="text-sm text-slate-500">This module currently has no internal tool route linked yet.</span>
+    {% endif %}
+    <a class="text-fem-700 font-semibold" href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+  </div>
+</section>
+{% endblock %}

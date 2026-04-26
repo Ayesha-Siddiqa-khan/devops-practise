@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="420" viewBox="0 0 640 420" fill="none">
+  <rect width="640" height="420" rx="28" fill="#EFF9FF"/>
+  <circle cx="320" cy="88" r="32" fill="#CDE6FF"/>
+  <rect x="278" y="124" width="84" height="94" rx="28" fill="#4F7CF7"/>
+  <rect x="198" y="166" width="82" height="24" rx="12" fill="#7AA2FF"/>
+  <rect x="360" y="166" width="82" height="24" rx="12" fill="#7AA2FF"/>
+  <rect x="278" y="214" width="36" height="100" rx="18" fill="#2E57C2"/>
+  <rect x="326" y="214" width="36" height="100" rx="18" fill="#2E57C2"/>
+  <text x="30" y="382" fill="#2C58A8" font-size="26" font-family="Arial">Stretching</text>
+</svg>

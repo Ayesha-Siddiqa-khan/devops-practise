@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block title %}FemCare AI | Dashboard{% endblock %}
+
+{% block content %}
+<section id="dashboard-root" class="space-y-6">
+  <article class="dashboard-hero animate-fade-up">
+    <div class="dashboard-hero-content">
+      <div>
+        <p class="dashboard-overline">Personal Wellness Command Center</p>
+        <h1 id="dashboard-greeting" class="dashboard-title">Good Evening, {{ current_user.username }} 💜</h1>
+        <p id="dashboard-support-note" class="dashboard-subtitle">You are not behind. Your health journey is personal and progress still counts.</p>
+      </div>
+      <div class="dashboard-chip-grid">
+        <div class="hero-chip">
+          <p class="hero-chip-label">Cycle Phase</p>
+          <p id="insight-cycle" class="hero-chip-value">Loading...</p>
+        </div>
+        <div class="hero-chip">
+          <p class="hero-chip-label">Mood Status</p>
+          <p id="insight-mood" class="hero-chip-value">Loading...</p>
+        </div>
+        <div class="hero-chip">
+          <p class="hero-chip-label">Energy Level</p>
+          <p id="insight-energy" class="hero-chip-value">Loading...</p>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <section class="glass-panel p-5 dashboard-search-wrap animate-fade-up delay-1">
+    <div class="flex flex-wrap items-center gap-3 relative">
+      <div class="flex-1 min-w-[220px] relative">
+        <input id="module-search" type="text" class="input-field w-full" placeholder="Smart search modules, tips, mood, cycle, workouts..." autocomplete="off">
+        <div id="search-suggestions" class="smart-suggestions hidden"></div>
+      </div>
+      <select id="module-category" class="input-field md:w-[220px]">
+        <option value="all">All Categories</option>
+        <option value="women_health">Women Health</option>
+        <option value="pregnancy">Pregnancy</option>
+        <option value="mental_health">Mental Health</option>
+        <option value="fitness">Fitness</option>
+        <option value="disease">Diseases</option>
+        <option value="period">Period</option>
+      </select>
+      <button id="module-filter-btn" class="btn-primary glow-btn">Apply Filter</button>
+    </div>
+
+    <div class="mt-2 text-xs text-slate-500">Suggestions adapt to module titles, categories, and common wellness intents.</div>
+    <div id="modules-grid" class="mt-5 grid md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+    <p id="modules-empty" class="hidden text-sm text-slate-600 mt-4">No modules found for this filter.</p>
+  </section>
+
+  <section class="grid md:grid-cols-2 xl:grid-cols-4 gap-4 animate-fade-up delay-1">
+    <article class="glass-panel p-5 premium-card">
+      <p class="text-xs uppercase tracking-wide text-fem-700">Next Period</p>
+      <h3 id="next-period-date" class="font-bold mt-2 text-lg">Loading...</h3>
+      <p class="text-sm text-slate-600 mt-2">Cycle-aware planning keeps your routine smoother.</p>
+    </article>
+
+    <article class="glass-panel p-5 premium-card">
+      <p class="text-xs uppercase tracking-wide text-fem-700">Ovulation Window</p>
+      <h3 id="ovulation-window" class="font-bold mt-2 text-lg">Loading...</h3>
+      <p class="text-sm text-slate-600 mt-2">Use this to time nutrition, rest, and activity better.</p>
+    </article>
+
+    <article class="glass-panel p-5 premium-card">
+      <p class="text-xs uppercase tracking-wide text-fem-700">Workout Progress</p>
+      <h3 id="workout-progress-text" class="font-bold mt-2 text-lg">0% completed</h3>
+      <div class="progress-track mt-3">
+        <div id="workout-progress-fill" class="progress-fill" style="width: 0%;"></div>
+      </div>
+      <p id="workout-meta" class="text-xs text-slate-600 mt-2">0 of 0 tasks | Streak 0</p>
+    </article>
+
+    <article class="glass-panel p-5 premium-card">
+      <p class="text-xs uppercase tracking-wide text-fem-700">Daily Support Tip</p>
+      <h3 class="font-bold mt-2 text-lg">Today's gentle guidance</h3>
+      <p id="daily-tip" class="text-sm text-slate-700 mt-2">Loading personalized tip...</p>
+    </article>
+  </section>
+
+  <section class="grid xl:grid-cols-3 gap-4 animate-fade-up delay-2">
+    <article class="glass-panel p-5 xl:col-span-2 premium-card">
+      <div class="flex items-center justify-between gap-3">
+        <h2 class="text-lg font-bold">Mood Trend Snapshot</h2>
+        <span class="text-xs px-3 py-1 rounded-full bg-fem-100 text-fem-700">Last check-ins</span>
+      </div>
+      <canvas id="mood-trend-chart" height="120" class="mt-4"></canvas>
+    </article>
+
+    <article class="glass-panel p-5 premium-card">
+      <h2 class="text-lg font-bold">Hydration Reminder</h2>
+      <canvas id="hydration-chart" height="120" class="mt-4"></canvas>
+      <p id="hydration-meta" class="text-sm text-slate-600 mt-3">Loading hydration target...</p>
+    </article>
+  </section>
+
+  <section class="grid xl:grid-cols-3 gap-4 animate-fade-up delay-2">
+    <article class="glass-panel p-5 premium-card xl:col-span-2">
+      <h2 class="text-lg font-bold">Cycle Timeline</h2>
+      <ul id="cycle-timeline" class="timeline-modern mt-4"></ul>
+    </article>
+
+    <article class="glass-panel p-5 premium-card">
+      <h2 class="text-lg font-bold">Personalized Recommendations</h2>
+      <ul id="dashboard-recommendations" class="recommend-list mt-4"></ul>
+    </article>
+  </section>
+
+  <section class="grid xl:grid-cols-3 gap-4 animate-fade-up">
+    <article class="glass-panel p-5 premium-card xl:col-span-2">
+      <div class="flex items-center justify-between gap-3">
+        <h2 class="text-lg font-bold">Onboarding Progress</h2>
+        <span id="onboarding-percent" class="text-sm font-semibold text-fem-700">0%</span>
+      </div>
+      <div class="progress-track mt-3">
+        <div id="onboarding-fill" class="progress-fill" style="width: 0%;"></div>
+      </div>
+      <ul id="onboarding-tips" class="recommend-list mt-4"></ul>
+    </article>
+
+    <article class="glass-panel p-5 premium-card">
+      <h2 class="text-lg font-bold">Quick Actions</h2>
+      <div class="mt-3 grid gap-2 text-sm">
+        <a class="quick-action-link" href="{{ url_for('period_tracker') }}" data-dashboard-modal="true" data-feature="period">Update Cycle Data</a>
+        <a class="quick-action-link" href="{{ url_for('mood_chat_page') }}" data-dashboard-modal="true" data-feature="mood_chat">Open Mood Chat</a>
+        <a class="quick-action-link" href="{{ url_for('workout') }}" data-dashboard-modal="true" data-feature="workout">Continue Workout</a>
+        <a class="quick-action-link" href="{{ url_for('tips') }}" data-dashboard-modal="true" data-feature="tips">View Daily Tips</a>
+      </div>
+    </article>
+  </section>
+
+  {% if current_user.is_authenticated and current_user.is_admin %}
+  <section>
+    <a href="{{ url_for('admin_modules') }}" class="btn-primary glow-btn inline-flex items-center gap-2"><i class="fa-solid fa-screwdriver-wrench"></i> Manage Modules (Admin)</a>
+  </section>
+  {% endif %}
+</section>
+{% endblock %}

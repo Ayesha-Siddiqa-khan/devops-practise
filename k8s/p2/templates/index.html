@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flask Scientific Calculator</title>
+  <style>
+    :root {
+      --bg-1: #f9f5ec;
+      --bg-2: #e4eef5;
+      --shell: #fefcf7;
+      --calculator: #18232e;
+      --display: #d9f3df;
+      --display-text: #10251a;
+      --display-muted: #3f5a49;
+      --key-fn: #4b6679;
+      --key-num: #f0f4f7;
+      --key-op: #ffb55f;
+      --key-accent: #4eb39d;
+      --key-delete: #d7685f;
+      --history-card: #ffffff;
+      --history-border: #d6dee5;
+      --text-dark: #16212b;
+      --text-soft: #5f6d79;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Lucida Sans", "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--text-dark);
+      background:
+        radial-gradient(circle at 8% 12%, rgba(255, 181, 95, 0.34), transparent 28%),
+        radial-gradient(circle at 84% 88%, rgba(78, 179, 157, 0.32), transparent 34%),
+        linear-gradient(140deg, var(--bg-1), var(--bg-2));
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .shell {
+      width: min(1020px, 100%);
+      background: var(--shell);
+      border-radius: 28px;
+      padding: 24px;
+      box-shadow: 0 20px 54px rgba(28, 35, 44, 0.16);
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+      gap: 20px;
+      animation: rise 480ms ease;
+    }
+
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .calculator {
+      background: var(--calculator);
+      color: #ffffff;
+      border-radius: 24px;
+      padding: 16px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 6px;
+    }
+
+    .brand {
+      margin: 0;
+      font-size: 1.1rem;
+      letter-spacing: 0.5px;
+    }
+
+    .mini {
+      color: #c7d1da;
+      font-size: 0.82rem;
+      font-weight: 700;
+      border: 1px solid #2f4253;
+      border-radius: 999px;
+      padding: 4px 10px;
+    }
+
+    .display {
+      background: linear-gradient(180deg, #d8f1de, #c4e7cf);
+      border-radius: 14px;
+      padding: 12px;
+      display: grid;
+      gap: 6px;
+      color: var(--display-text);
+      border: 2px solid #75907f;
+      min-height: 120px;
+    }
+
+    .display-top {
+      display: flex;
+      justify-content: space-between;
+      color: var(--display-muted);
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .expression {
+      min-height: 32px;
+      font-size: 1.12rem;
+      word-break: break-all;
+      text-align: right;
+    }
+
+    .result {
+      font-size: 1.75rem;
+      font-weight: 800;
+      text-align: right;
+      word-break: break-all;
+    }
+
+    .mode-switch {
+      display: flex;
+      gap: 8px;
+    }
+
+    .mode-btn {
+      flex: 1;
+      border: 1px solid #2d4152;
+      background: #223343;
+      color: #d4dde5;
+      border-radius: 9px;
+      padding: 8px 10px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.12s ease, background 0.15s ease;
+    }
+
+    .mode-btn.active {
+      background: #4eb39d;
+      color: #0f2d27;
+    }
+
+    .mode-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .key {
+      border: none;
+      border-radius: 11px;
+      padding: 12px 8px;
+      font-size: 0.98rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.08s ease, filter 0.12s ease;
+    }
+
+    .key:hover {
+      filter: brightness(0.98);
+    }
+
+    .key:active {
+      transform: translateY(1px);
+    }
+
+    .key-num {
+      background: var(--key-num);
+      color: #1b2937;
+    }
+
+    .key-fn {
+      background: var(--key-fn);
+      color: #eef4f8;
+    }
+
+    .key-op {
+      background: var(--key-op);
+      color: #4a2a00;
+    }
+
+    .key-accent {
+      background: var(--key-accent);
+      color: #0e2f27;
+    }
+
+    .key-delete {
+      background: var(--key-delete);
+      color: #ffffff;
+    }
+
+    .key-wide {
+      grid-column: span 2;
+    }
+
+    .history-panel {
+      background: #f7fafc;
+      border: 1px solid var(--history-border);
+      border-radius: 20px;
+      padding: 16px;
+      display: grid;
+      align-content: start;
+      gap: 10px;
+    }
+
+    .history-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .history-title {
+      margin: 0;
+      font-size: 1.1rem;
+      color: #223443;
+    }
+
+    .clear-btn {
+      border: 1px solid #d0dae3;
+      background: #ffffff;
+      color: #2e4b61;
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .status {
+      font-size: 0.88rem;
+      color: var(--text-soft);
+      min-height: 20px;
+    }
+
+    .history-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 10px;
+      max-height: 470px;
+      overflow: auto;
+    }
+
+    .history-item {
+      background: var(--history-card);
+      border: 1px solid var(--history-border);
+      border-radius: 12px;
+      padding: 11px;
+    }
+
+    .history-expression {
+      color: #586774;
+      font-size: 0.9rem;
+      word-break: break-all;
+    }
+
+    .history-result {
+      font-size: 1.06rem;
+      font-weight: 800;
+      margin-top: 3px;
+      color: #1c3548;
+    }
+
+    .history-mode {
+      margin-top: 2px;
+      font-size: 0.78rem;
+      color: #7a8895;
+      letter-spacing: 0.3px;
+    }
+
+    .empty {
+      margin: 0;
+      color: var(--text-soft);
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 920px) {
+      .shell {
+        grid-template-columns: 1fr;
+        padding: 16px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .keypad {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .key-wide {
+        grid-column: span 1;
+      }
+
+      .display {
+        min-height: 108px;
+      }
+
+      .result {
+        font-size: 1.45rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="calculator">
+      <div class="header">
+        <h1 class="brand">Scientific Calculator</h1>
+        <span class="mini">Flask + API</span>
+      </div>
+
+      <div class="display">
+        <div class="display-top">
+          <span id="modeLabel">MODE: DEG</span>
+          <span id="ansLabel">ANS: {{ ans }}</span>
+        </div>
+        <div id="expressionDisplay" class="expression">0</div>
+        <div id="resultDisplay" class="result">Ready</div>
+      </div>
+
+      <div class="mode-switch">
+        <button class="mode-btn active" type="button" data-mode="deg">DEG</button>
+        <button class="mode-btn" type="button" data-mode="rad">RAD</button>
+      </div>
+
+      <div class="keypad" id="keypad">
+        <button class="key key-delete" data-action="clear">AC</button>
+        <button class="key key-delete" data-action="delete">DEL</button>
+        <button class="key key-fn" data-token="(">(</button>
+        <button class="key key-fn" data-token=")">)</button>
+        <button class="key key-op" data-token="/">÷</button>
+
+        <button class="key key-fn" data-token="sin(">sin</button>
+        <button class="key key-fn" data-token="cos(">cos</button>
+        <button class="key key-fn" data-token="tan(">tan</button>
+        <button class="key key-fn" data-token="sqrt(">√</button>
+        <button class="key key-op" data-token="*">×</button>
+
+        <button class="key key-fn" data-token="asin(">sin⁻¹</button>
+        <button class="key key-fn" data-token="acos(">cos⁻¹</button>
+        <button class="key key-fn" data-token="atan(">tan⁻¹</button>
+        <button class="key key-fn" data-token="log(">log</button>
+        <button class="key key-op" data-token="-">−</button>
+
+        <button class="key key-fn" data-token="ln(">ln</button>
+        <button class="key key-fn" data-token="factorial(">x!</button>
+        <button class="key key-fn" data-action="square">x²</button>
+        <button class="key key-fn" data-token="^">xʸ</button>
+        <button class="key key-op" data-token="+">+</button>
+
+        <button class="key key-num" data-token="7">7</button>
+        <button class="key key-num" data-token="8">8</button>
+        <button class="key key-num" data-token="9">9</button>
+        <button class="key key-fn" data-token="pi">π</button>
+        <button class="key key-fn" data-token="e">e</button>
+
+        <button class="key key-num" data-token="4">4</button>
+        <button class="key key-num" data-token="5">5</button>
+        <button class="key key-num" data-token="6">6</button>
+        <button class="key key-fn" data-action="inverse">1/x</button>
+        <button class="key key-fn" data-token="%">mod</button>
+
+        <button class="key key-num" data-token="1">1</button>
+        <button class="key key-num" data-token="2">2</button>
+        <button class="key key-num" data-token="3">3</button>
+        <button class="key key-fn" data-token="ans">Ans</button>
+        <button class="key key-accent key-wide" data-action="evaluate">=</button>
+
+        <button class="key key-num" data-token="0">0</button>
+        <button class="key key-num" data-token=".">.</button>
+      </div>
+    </section>
+
+    <aside class="history-panel">
+      <div class="history-head">
+        <h2 class="history-title">History</h2>
+        <button id="clearHistoryBtn" class="clear-btn" type="button">Clear</button>
+      </div>
+      <div id="statusText" class="status">Functions: sin, cos, tan, log, ln, sqrt, factorial.</div>
+      <ul id="historyList" class="history-list"></ul>
+      <p id="historyEmpty" class="empty">No calculations yet.</p>
+    </aside>
+  </main>
+
+  <script>
+    const expressionDisplay = document.getElementById("expressionDisplay");
+    const resultDisplay = document.getElementById("resultDisplay");
+    const modeLabel = document.getElementById("modeLabel");
+    const ansLabel = document.getElementById("ansLabel");
+    const statusText = document.getElementById("statusText");
+    const historyList = document.getElementById("historyList");
+    const historyEmpty = document.getElementById("historyEmpty");
+    const keypad = document.getElementById("keypad");
+    const clearHistoryBtn = document.getElementById("clearHistoryBtn");
+    const modeButtons = document.querySelectorAll(".mode-btn");
+
+    let expression = "";
+    let mode = "deg";
+    let ans = Number.parseFloat("{{ ans }}") || 0;
+    let history = {{ history | tojson }};
+
+    function prettify(value) {
+      return value
+        .replace(/\*\*/g, "^")
+        .replace(/\*/g, "×")
+        .replace(/\//g, "÷")
+        .replace(/pi/g, "π");
+    }
+
+    function updateExpression() {
+      expressionDisplay.textContent = expression ? prettify(expression) : "0";
+    }
+
+    function setStatus(message, isError = false) {
+      statusText.textContent = message;
+      statusText.style.color = isError ? "#b43c2f" : "#5f6d79";
+    }
+
+    function renderHistory(items) {
+      historyList.innerHTML = "";
+      historyEmpty.style.display = items.length ? "none" : "block";
+
+      for (const item of items) {
+        const li = document.createElement("li");
+        li.className = "history-item";
+        li.innerHTML = `
+          <div class="history-expression">${prettify(item.expression)}</div>
+          <div class="history-result">= ${item.result}</div>
+          <div class="history-mode">${item.mode}</div>
+        `;
+        historyList.appendChild(li);
+      }
+    }
+
+    function insertToken(token) {
+      expression += token;
+      updateExpression();
+    }
+
+    function clearAll() {
+      expression = "";
+      resultDisplay.textContent = "Ready";
+      updateExpression();
+      setStatus("Cleared current expression.");
+    }
+
+    function deleteLast() {
+      expression = expression.slice(0, -1);
+      updateExpression();
+    }
+
+    function setMode(nextMode) {
+      mode = nextMode;
+      modeLabel.textContent = `MODE: ${nextMode.toUpperCase()}`;
+      modeButtons.forEach((button) => {
+        button.classList.toggle("active", button.dataset.mode === nextMode);
+      });
+      setStatus(`Mode switched to ${nextMode.toUpperCase()}.`);
+    }
+
+    async function evaluateExpression() {
+      if (!expression.trim()) {
+        setStatus("Enter an expression first.", true);
+        return;
+      }
+
+      resultDisplay.textContent = "...";
+      setStatus("Calculating...");
+
+      try {
+        const response = await fetch("/api/calculate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ expression, angle_mode: mode }),
+        });
+        const data = await response.json();
+
+        if (!response.ok || !data.ok) {
+          throw new Error(data.error || "Calculation failed.");
+        }
+
+        ans = Number.parseFloat(data.result) || ans;
+        ansLabel.textContent = `ANS: ${data.ans}`;
+        resultDisplay.textContent = data.result;
+        expression = data.result;
+        history = data.history || [];
+        updateExpression();
+        renderHistory(history);
+        setStatus("Calculation complete.");
+      } catch (error) {
+        resultDisplay.textContent = "Error";
+        setStatus(error.message, true);
+      }
+    }
+
+    async function clearHistory() {
+      try {
+        const response = await fetch("/api/clear-history", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
+        const data = await response.json();
+        history = data.history || [];
+        renderHistory(history);
+        setStatus("History cleared.");
+      } catch {
+        setStatus("Could not clear history.", true);
+      }
+    }
+
+    keypad.addEventListener("click", (event) => {
+      const button = event.target.closest("button");
+      if (!button) {
+        return;
+      }
+
+      const action = button.dataset.action;
+      const token = button.dataset.token;
+
+      if (token) {
+        insertToken(token);
+        return;
+      }
+
+      if (action === "clear") {
+        clearAll();
+      } else if (action === "delete") {
+        deleteLast();
+      } else if (action === "square") {
+        expression = expression ? `(${expression})^2` : "0^2";
+        updateExpression();
+      } else if (action === "inverse") {
+        expression = expression ? `1/(${expression})` : "1/(1)";
+        updateExpression();
+      } else if (action === "evaluate") {
+        evaluateExpression();
+      }
+    });
+
+    modeButtons.forEach((button) => {
+      button.addEventListener("click", () => setMode(button.dataset.mode));
+    });
+
+    clearHistoryBtn.addEventListener("click", clearHistory);
+
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        evaluateExpression();
+      }
+      if (event.key === "Backspace") {
+        deleteLast();
+      }
+      if (event.key === "Escape") {
+        clearAll();
+      }
+    });
+
+    renderHistory(history);
+    updateExpression();
+  </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flask Smart Calculator</title>
+  <style>
+    :root {
+      --bg-1: #fff8e7;
+      --bg-2: #d7efe7;
+      --card: #fffdf8;
+      --panel: #f3faf7;
+      --text: #15231f;
+      --muted: #53645e;
+      --accent: #0c7a5d;
+      --accent-dark: #075844;
+      --accent-soft: #d8f6ea;
+      --warm: #ff9a5a;
+      --error: #aa2e1c;
+      --border: #d4dcd7;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Avenir Next", "Century Gothic", "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 10%, rgba(255, 154, 90, 0.33), transparent 30%),
+        radial-gradient(circle at 84% 84%, rgba(12, 122, 93, 0.28), transparent 36%),
+        linear-gradient(135deg, var(--bg-1), var(--bg-2));
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .calculator {
+      width: min(920px, 100%);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: 0 18px 48px rgba(18, 26, 23, 0.14);
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 22px;
+      animation: rise 520ms ease;
+    }
+
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(14px) scale(0.99);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .left {
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    .right {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+
+    .title-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.85rem;
+      letter-spacing: 0.3px;
+    }
+
+    .pill {
+      background: var(--accent-soft);
+      border: 1px solid #bfe8d8;
+      color: var(--accent-dark);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-weight: 700;
+      font-size: 0.86rem;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    form {
+      display: grid;
+      gap: 14px;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 0.92rem;
+      margin-bottom: 6px;
+      display: inline-block;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    input,
+    select,
+    button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      font-size: 1rem;
+      background: #ffffff;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.12s ease;
+    }
+
+    input:focus,
+    select:focus {
+      outline: 0;
+      box-shadow: 0 0 0 3px rgba(12, 122, 93, 0.2);
+      border-color: var(--accent);
+    }
+
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    button {
+      border: none;
+      font-weight: 700;
+      background: var(--accent);
+      color: #ffffff;
+      cursor: pointer;
+      letter-spacing: 0.2px;
+    }
+
+    button:hover {
+      background: var(--accent-dark);
+      transform: translateY(-1px);
+    }
+
+    .ghost {
+      background: #fff4ea;
+      color: #a35917;
+      border: 1px solid #ffd4b7;
+      min-width: 132px;
+    }
+
+    .ghost:hover {
+      background: #ffe8d7;
+    }
+
+    .result,
+    .error,
+    .expression {
+      padding: 13px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      font-weight: 600;
+      animation: rise 380ms ease;
+    }
+
+    .expression {
+      background: #f6f8f7;
+      color: #2a3a34;
+    }
+
+    .result {
+      background: #e8fbf2;
+      color: #084636;
+    }
+
+    .error {
+      background: #fff0ed;
+      color: var(--error);
+      border-color: #f2c3bd;
+    }
+
+    .result-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-top: 3px;
+    }
+
+    .history-title {
+      margin: 0;
+      font-size: 1.02rem;
+    }
+
+    .history-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 8px;
+      max-height: 360px;
+      overflow: auto;
+    }
+
+    .history-item {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      padding: 10px;
+    }
+
+    .history-expression {
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .history-result {
+      font-size: 1.02rem;
+      font-weight: 700;
+      margin-top: 3px;
+      color: #16352c;
+    }
+
+    .empty-state {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 840px) {
+      .calculator {
+        grid-template-columns: 1fr;
+        padding: 20px;
+      }
+
+      .btn-row {
+        grid-template-columns: 1fr;
+      }
+
+      .ghost {
+        min-width: 0;
+      }
+
+      h1 {
+        font-size: 1.56rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="calculator">
+    <section class="left">
+      <div class="title-row">
+        <h1>Smart Flask Calculator</h1>
+        <span class="pill">v2 features</span>
+      </div>
+      <p class="subtitle">Now supports power, modulus, precision control, and recent history.</p>
+
+      <form method="post">
+        <div class="grid-2">
+          <div>
+            <label for="num1">First Number</label>
+            <input id="num1" name="num1" type="text" value="{{ num1 }}" required />
+          </div>
+
+          <div>
+            <label for="num2">Second Number</label>
+            <input id="num2" name="num2" type="text" value="{{ num2 }}" required />
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <label for="operation">Operation</label>
+            <select id="operation" name="operation">
+              <option value="add" {% if operation == 'add' %}selected{% endif %}>Add (+)</option>
+              <option value="subtract" {% if operation == 'subtract' %}selected{% endif %}>Subtract (-)</option>
+              <option value="multiply" {% if operation == 'multiply' %}selected{% endif %}>Multiply (*)</option>
+              <option value="divide" {% if operation == 'divide' %}selected{% endif %}>Divide (/)</option>
+              <option value="power" {% if operation == 'power' %}selected{% endif %}>Power (^)</option>
+              <option value="modulus" {% if operation == 'modulus' %}selected{% endif %}>Modulus (%)</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="precision">Decimal Precision</label>
+            <select id="precision" name="precision">
+              {% for p in range(0, 7) %}
+                <option value="{{ p }}" {% if precision == p|string %}selected{% endif %}>{{ p }} digits</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button type="submit">Calculate</button>
+          <button class="ghost" type="submit" name="action" value="clear_history">Clear History</button>
+        </div>
+      </form>
+
+      {% if expression %}
+        <div class="expression">Expression: {{ expression }}</div>
+      {% endif %}
+
+      {% if result is not none %}
+        <div class="result">
+          Rounded Result
+          <div class="result-value">{{ result }}</div>
+          {% if raw_result is not none %}
+            <div class="history-expression">Raw: {{ raw_result }}</div>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      {% if error %}
+        <div class="error">{{ error }}</div>
+      {% endif %}
+    </section>
+
+    <aside class="right">
+      <h2 class="history-title">Recent Calculations</h2>
+      {% if history %}
+        <ul class="history-list">
+          {% for item in history %}
+            <li class="history-item">
+              <div class="history-expression">{{ item.expression }}</div>
+              <div class="history-result">= {{ item.result }}</div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="empty-state">No history yet. Make a calculation and it will appear here.</p>
+      {% endif %}
+    </aside>
+  </main>
+</body>
+</html>

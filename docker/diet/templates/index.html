@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% block title %}Diet Manager{% endblock %}
+{% block content %}
+<section class="hero card">
+  <div>
+    <p class="eyebrow">Flask Diet Tracker</p>
+    <h1>Build clean eating habits, one meal at a time.</h1>
+    <p class="subtext">
+      Log meals, track macros, and practice shipping your app through Docker.
+    </p>
+  </div>
+  <form class="add-form" method="POST" action="{{ url_for('add_entry') }}">
+    <h2>Add Meal</h2>
+    <input type="text" name="meal_name" placeholder="Meal name" required />
+    <div class="grid two">
+      <input type="number" min="0" name="calories" placeholder="Calories" required />
+      <select name="meal_time" required>
+        <option value="Breakfast">Breakfast</option>
+        <option value="Lunch">Lunch</option>
+        <option value="Dinner">Dinner</option>
+        <option value="Snack">Snack</option>
+      </select>
+    </div>
+    <div class="grid three">
+      <input type="number" min="0" step="0.1" name="protein" placeholder="Protein (g)" required />
+      <input type="number" min="0" step="0.1" name="carbs" placeholder="Carbs (g)" required />
+      <input type="number" min="0" step="0.1" name="fats" placeholder="Fats (g)" required />
+    </div>
+    <button class="btn primary" type="submit">Save Meal</button>
+  </form>
+</section>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <section class="alerts">
+      {% for category, message in messages %}
+        <div class="alert {{ category }}">{{ message }}</div>
+      {% endfor %}
+    </section>
+  {% endif %}
+{% endwith %}
+
+<section class="stats-grid">
+  <article class="card stat">
+    <p>Total Calories</p>
+    <h3>{{ totals.calories }}</h3>
+  </article>
+  <article class="card stat">
+    <p>Protein</p>
+    <h3>{{ '%.1f'|format(totals.protein) }} g</h3>
+  </article>
+  <article class="card stat">
+    <p>Carbs</p>
+    <h3>{{ '%.1f'|format(totals.carbs) }} g</h3>
+  </article>
+  <article class="card stat">
+    <p>Fats</p>
+    <h3>{{ '%.1f'|format(totals.fats) }} g</h3>
+  </article>
+  <article class="card stat">
+    <p>Consumed</p>
+    <h3>{{ consumed_count }} / {{ entry_count }}</h3>
+  </article>
+</section>
+
+<section class="card table-card">
+  <div class="table-head">
+    <h2>Meal Log</h2>
+    <form method="POST" action="{{ url_for('clear_all_entries') }}" onsubmit="return confirm('Clear all meal entries?')">
+      <button class="btn danger" type="submit">Clear All</button>
+    </form>
+  </div>
+
+  {% if entries %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Meal</th>
+            <th>Type</th>
+            <th>Calories</th>
+            <th>P/C/F (g)</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for entry in entries %}
+            <tr class="{% if entry.consumed %}is-consumed{% endif %}">
+              <td>{{ entry.meal_name }}</td>
+              <td>{{ entry.meal_time }}</td>
+              <td>{{ entry.calories }}</td>
+              <td>
+                {{ '%.1f'|format(entry.protein) }} /
+                {{ '%.1f'|format(entry.carbs) }} /
+                {{ '%.1f'|format(entry.fats) }}
+              </td>
+              <td>{{ 'Consumed' if entry.consumed else 'Planned' }}</td>
+              <td class="actions">
+                <form method="POST" action="{{ url_for('toggle_consumed', entry_id=entry.id) }}">
+                  <button class="btn secondary" type="submit">
+                    {{ 'Undo' if entry.consumed else 'Mark Done' }}
+                  </button>
+                </form>
+                <form method="POST" action="{{ url_for('delete_entry', entry_id=entry.id) }}" onsubmit="return confirm('Delete this meal?')">
+                  <button class="btn ghost" type="submit">Delete</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="empty">No meals yet. Add your first meal to get started.</p>
+  {% endif %}
+</section>
+{% endblock %}

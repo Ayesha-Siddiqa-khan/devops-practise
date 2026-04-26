@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}FemCare AI{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            fem: {
+              50: "#f8f5ff",
+              100: "#efe7ff",
+              200: "#dfceff",
+              500: "#8952ff",
+              600: "#7539ec",
+              700: "#5f2ec2",
+              900: "#25163f"
+            }
+          },
+          boxShadow: {
+            glass: "0 18px 40px rgba(95, 46, 194, 0.18)",
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/branding/femcare-mark.svg') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', v='20260401b') }}">
+</head>
+<body class="fem-bg min-h-screen font-[Manrope] text-slate-900">
+  <div class="min-h-screen lg:flex">
+    <aside id="app-sidebar" class="glass-panel app-sidebar lg:w-72 p-6 border-b lg:border-b-0 lg:border-r border-white/30">
+      <div class="flex items-center gap-3 mb-8">
+        <img src="{{ url_for('static', filename='images/branding/femcare-mark.svg') }}" alt="FemCare AI logo" class="brand-mark">
+        <div>
+          <p class="text-sm font-semibold text-fem-900">FemCare AI</p>
+          <p class="text-xs text-slate-500">Personalized Women Health SaaS</p>
+        </div>
+      </div>
+
+      <nav class="space-y-2">
+        {% if current_user.is_authenticated %}
+          <a href="{{ url_for('dashboard') }}" class="menu-link {% if active_page == 'dashboard' %}menu-link-active{% endif %}">
+            <i class="fa-solid fa-house"></i><span class="nav-label">Dashboard</span>
+          </a>
+          <a href="{{ url_for('period_tracker') }}" class="menu-link {% if active_page == 'period' %}menu-link-active{% endif %}" data-dashboard-modal="true" data-feature="period">
+            <i class="fa-solid fa-calendar-days"></i><span class="nav-label">Period Tracker</span>
+          </a>
+          <a href="{{ url_for('pregnancy_tracker') }}" class="menu-link {% if active_page == 'pregnancy' %}menu-link-active{% endif %}" data-dashboard-modal="true" data-feature="pregnancy">
+            <i class="fa-solid fa-baby"></i><span class="nav-label">Pregnancy Tracker</span>
+          </a>
+          <a href="{{ url_for('health_checker') }}" class="menu-link {% if active_page == 'health' %}menu-link-active{% endif %}" data-dashboard-modal="true" data-feature="health_checker">
+            <i class="fa-solid fa-stethoscope"></i><span class="nav-label">Health Checker</span>
+          </a>
+          <a href="{{ url_for('tips') }}" class="menu-link {% if active_page == 'tips' %}menu-link-active{% endif %}" data-dashboard-modal="true" data-feature="tips">
+            <i class="fa-solid fa-lightbulb"></i><span class="nav-label">Tips</span>
+          </a>
+          <a href="{{ url_for('fitness') }}" class="menu-link {% if active_page == 'fitness' %}menu-link-active{% endif %}" data-dashboard-modal="true" data-feature="fitness">
+            <i class="fa-solid fa-dumbbell"></i><span class="nav-label">Fitness & Diet AI</span>
+          </a>
+          <a href="{{ url_for('workout') }}" class="menu-link {% if active_page == 'workout' %}menu-link-active{% endif %}" data-dashboard-modal="true" data-feature="workout">
+            <i class="fa-solid fa-person-running"></i><span class="nav-label">Workout Trainer</span>
+          </a>
+          <a href="{{ url_for('mood_chat_page') }}" class="menu-link {% if active_page == 'mood_chat' %}menu-link-active{% endif %}" data-dashboard-modal="true" data-feature="mood_chat">
+            <i class="fa-solid fa-comments"></i><span class="nav-label">Mood Chatbot</span>
+          </a>
+          <a href="{{ url_for('diabetes_heart.diabetes_heart_page') }}" class="menu-link {% if active_page == 'diabetes_heart' %}menu-link-active{% endif %}" data-dashboard-modal="true" data-feature="diabetes_heart">
+            <i class="fa-solid fa-heart-pulse"></i><span class="nav-label">Diabetes & Heart</span>
+          </a>
+          {% if current_user.is_admin %}
+            <a href="{{ url_for('admin_modules') }}" class="menu-link {% if active_page == 'admin' %}menu-link-active{% endif %}">
+              <i class="fa-solid fa-screwdriver-wrench"></i><span class="nav-label">Admin Modules</span>
+            </a>
+          {% endif %}
+          <a href="{{ url_for('logout') }}" class="menu-link">
+            <i class="fa-solid fa-right-from-bracket"></i><span class="nav-label">Logout</span>
+          </a>
+        {% else %}
+          <a href="{{ url_for('login') }}" class="menu-link {% if active_page == 'auth' %}menu-link-active{% endif %}">
+            <i class="fa-solid fa-right-to-bracket"></i><span class="nav-label">Login</span>
+          </a>
+          <a href="{{ url_for('register') }}" class="menu-link {% if active_page == 'auth' %}menu-link-active{% endif %}">
+            <i class="fa-solid fa-user-plus"></i><span class="nav-label">Register</span>
+          </a>
+        {% endif %}
+      </nav>
+
+      <div class="mt-8 p-4 rounded-2xl bg-white/65 border border-white/70 sidebar-disclaimer">
+        <p class="text-xs font-semibold uppercase tracking-wide text-fem-700">Medical Disclaimer</p>
+        <p class="text-xs text-slate-600 mt-2">This application is for educational and informational purposes only. It is not a substitute for professional medical advice, diagnosis, or treatment. In emergencies, consult a healthcare professional immediately.</p>
+      </div>
+    </aside>
+
+    <main class="flex-1 p-4 md:p-7 lg:p-9">
+      <div class="mb-4 lg:mb-6 flex items-center justify-between">
+        <button id="sidebar-toggle" type="button" class="sidebar-toggle-btn" aria-label="Toggle sidebar">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <span class="text-xs text-slate-500">Your dashboard updates are personalized for your account.</span>
+      </div>
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  <div id="sidebar-overlay" class="sidebar-overlay hidden"></div>
+
+  <div id="feature-modal" class="feature-modal-shell hidden" role="dialog" aria-modal="true" aria-labelledby="feature-modal-title">
+    <div class="feature-modal-overlay" data-modal-close="true"></div>
+    <section class="feature-modal-dialog" aria-live="polite">
+      <header class="feature-modal-header">
+        <div class="feature-modal-title-wrap">
+          <div id="feature-modal-icon" class="feature-modal-icon"><i class="fa-solid fa-seedling"></i></div>
+          <div>
+            <p class="feature-modal-kicker">Quick Feature Access</p>
+            <h2 id="feature-modal-title" class="feature-modal-title">Module Preview</h2>
+          </div>
+        </div>
+        <button id="feature-modal-close" type="button" class="feature-modal-close" aria-label="Close popup">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </header>
+      <div id="feature-modal-content" class="feature-modal-content"></div>
+    </section>
+  </div>
+
+  <div id="global-loader" class="fixed inset-0 hidden items-center justify-center bg-slate-950/40 z-50">
+    <div class="glass-panel p-6 rounded-2xl w-[260px] text-center">
+      <div class="loader mx-auto mb-3"></div>
+      <p class="text-sm text-slate-700">Processing your request...</p>
+    </div>
+  </div>
+
+  {% if current_user.is_authenticated %}
+    <a href="{{ url_for('mood_chat_page') }}" class="floating-ai-btn" aria-label="Open AI support chat">
+      <i class="fa-solid fa-sparkles"></i>
+      <span>AI Care</span>
+    </a>
+  {% else %}
+    <a href="{{ url_for('login') }}" class="floating-ai-btn" aria-label="Login for AI support">
+      <i class="fa-solid fa-sparkles"></i>
+      <span>AI Care</span>
+    </a>
+  {% endif %}
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="{{ url_for('static', filename='js/main.js', v='20260401a') }}"></script>
+  {% if active_page == 'diabetes_heart' %}
+    <script src="{{ url_for('static', filename='js/diabetes_heart.js', v='20260330d') }}"></script>
+  {% endif %}
+  {% block scripts %}{% endblock %}
+</body>
+</html>

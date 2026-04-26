@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block title %}FemCare AI | Fitness & Diet AI{% endblock %}
+
+{% block content %}
+<section class="mb-5">
+  <h1 class="text-2xl font-extrabold">Fitness & Diet AI Planner</h1>
+  <p class="text-slate-600">Answer a few questions to receive a supportive, goal-based diet and wellness routine.</p>
+</section>
+
+{% if errors %}
+<div class="rounded-2xl bg-rose-50 border border-rose-200 p-4 mb-4">
+  <ul class="text-sm text-rose-700 list-disc pl-5">
+    {% for error in errors %}
+      <li>{{ error }}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<section class="grid xl:grid-cols-5 gap-4">
+  <article class="glass-panel p-5 xl:col-span-2">
+    <h2 class="text-lg font-bold">Step 1: Your Profile</h2>
+    <form method="POST" class="mt-4 space-y-4 validated-form" id="fitness-form">
+      <div>
+        <label class="label" for="age">Age</label>
+        <input id="age" name="age" type="number" min="13" max="60" value="{{ form.age }}" required class="input-field" placeholder="e.g. 28">
+      </div>
+      <div>
+        <label class="label" for="height_cm">Height (cm)</label>
+        <input id="height_cm" name="height_cm" type="number" min="120" max="210" value="{{ form.height_cm }}" required class="input-field" placeholder="e.g. 162">
+      </div>
+      <div>
+        <label class="label" for="weight_kg">Weight (kg)</label>
+        <input id="weight_kg" name="weight_kg" type="number" min="30" max="180" value="{{ form.weight_kg }}" required class="input-field" placeholder="e.g. 65">
+      </div>
+
+      <div>
+        <label class="label" for="goal">Goal</label>
+        <select id="goal" name="goal" class="input-field" required>
+          <option value="maintenance" {% if form.goal == 'maintenance' %}selected{% endif %}>Maintenance</option>
+          <option value="weight_loss" {% if form.goal == 'weight_loss' %}selected{% endif %}>Weight loss</option>
+          <option value="weight_gain" {% if form.goal == 'weight_gain' %}selected{% endif %}>Weight gain</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="label" for="activity_level">Activity level</label>
+        <select id="activity_level" name="activity_level" class="input-field" required>
+          <option value="low" {% if form.activity_level == 'low' %}selected{% endif %}>Low</option>
+          <option value="medium" {% if form.activity_level == 'medium' %}selected{% endif %}>Medium</option>
+          <option value="high" {% if form.activity_level == 'high' %}selected{% endif %}>High</option>
+        </select>
+      </div>
+
+      <div class="grid grid-cols-3 gap-2 text-sm">
+        <label class="inline-flex items-center gap-2"><input type="checkbox" name="thyroid" value="yes" {% if form.thyroid == 'yes' %}checked{% endif %}> Thyroid</label>
+        <label class="inline-flex items-center gap-2"><input type="checkbox" name="pcos" value="yes" {% if form.pcos == 'yes' %}checked{% endif %}> PCOS</label>
+        <label class="inline-flex items-center gap-2"><input type="checkbox" name="pregnancy" value="yes" {% if form.pregnancy == 'yes' %}checked{% endif %}> Pregnancy</label>
+      </div>
+
+      <button class="btn-primary w-full" type="submit">Generate Plan</button>
+    </form>
+  </article>
+
+  <article class="glass-panel p-5 xl:col-span-3">
+    <h2 class="text-lg font-bold">Step 2: Personalized Plan</h2>
+
+    {% if result %}
+      <div class="mt-4 result-card">
+        <p class="result-label">Estimated Daily Calories</p>
+        <p class="result-value">{{ result.calories }} kcal/day</p>
+      </div>
+
+      <div class="mt-4 grid md:grid-cols-2 gap-3 text-sm">
+        <div class="tip-card"><h3>Breakfast</h3><p>{{ result.plan.breakfast }}</p></div>
+        <div class="tip-card"><h3>Lunch</h3><p>{{ result.plan.lunch }}</p></div>
+        <div class="tip-card"><h3>Dinner</h3><p>{{ result.plan.dinner }}</p></div>
+        <div class="tip-card"><h3>Snacks</h3><p>{{ result.plan.snacks }}</p></div>
+      </div>
+
+      <div class="mt-3 tip-card text-sm">
+        <h3>Water Intake</h3>
+        <p>{{ result.plan.water }}</p>
+      </div>
+
+      <div class="mt-4">
+        <h3 class="font-semibold mb-2">Step 3: Progress</h3>
+        <div class="space-y-2">
+          {% for step in result.progress_steps %}
+            <div>
+              <div class="flex items-center justify-between text-xs mb-1">
+                <span>{{ step.title }}</span>
+                <span>{{ 100 if step.done else 0 }}%</span>
+              </div>
+              <div class="h-2 rounded-full bg-fem-100 overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-fem-500 to-emerald-400" style="width: {{ 100 if step.done else 0 }}%"></div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="mt-4 tip-card">
+        <h3>Condition-aware notes</h3>
+        <ul class="list-disc pl-5 text-sm mt-2">
+          {% for note in result.notes %}
+            <li>{{ note }}</li>
+          {% else %}
+            <li>No special conditions selected. Continue balanced nutrition and active routine.</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="mt-4 tip-card">
+        <h3>Fitness tips</h3>
+        <ul class="list-disc pl-5 text-sm mt-2">
+          {% for item in result.fitness_tips %}
+            <li>{{ item }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% else %}
+      <div class="empty-state mt-4">
+        <p>Complete your profile form to get a personalized diet and fitness routine.</p>
+      </div>
+    {% endif %}
+  </article>
+</section>
+
+<section class="mt-5">
+  <div class="rounded-2xl border border-rose-200 bg-rose-50 p-4">
+    <p class="text-sm text-rose-800"><strong>Medical Disclaimer:</strong> This application is for educational and informational purposes only. It is not a substitute for professional medical advice, diagnosis, or treatment. In emergencies, consult a healthcare professional immediately.</p>
+  </div>
+</section>
+{% endblock %}

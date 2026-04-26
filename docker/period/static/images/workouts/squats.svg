@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="420" viewBox="0 0 640 420" fill="none">
+  <rect width="640" height="420" rx="28" fill="#F4EEFF"/>
+  <circle cx="320" cy="92" r="34" fill="#D7C5FF"/>
+  <rect x="275" y="130" width="92" height="92" rx="28" fill="#8F65FF"/>
+  <rect x="256" y="214" width="58" height="94" rx="24" fill="#6B34D0"/>
+  <rect x="328" y="214" width="58" height="94" rx="24" fill="#6B34D0"/>
+  <rect x="212" y="164" width="56" height="24" rx="12" fill="#A984FF"/>
+  <rect x="372" y="164" width="56" height="24" rx="12" fill="#A984FF"/>
+  <text x="30" y="382" fill="#5F2EC2" font-size="26" font-family="Arial">Squats</text>
+</svg>

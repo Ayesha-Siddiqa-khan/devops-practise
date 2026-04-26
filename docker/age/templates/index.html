@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Age Calculator | Flask</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  </head>
+  <body>
+    <main class="page-wrap">
+      <section class="card">
+        <p class="eyebrow">Flask Demo</p>
+        <h1>Age Calculator</h1>
+        <p class="subtitle">Enter your birth date to get your exact age in years, months, and days.</p>
+
+        <form method="POST" class="age-form" novalidate>
+          <label for="dob">Date of Birth</label>
+          <input id="dob" name="dob" type="date" required value="{{ dob_input }}" max="{{ now }}" />
+          <button type="submit">Calculate Age</button>
+        </form>
+
+        {% if error %}
+        <p class="feedback error">{{ error }}</p>
+        {% endif %}
+
+        {% if result %}
+        <div class="result" aria-live="polite">
+          <h2>Your Age</h2>
+          <p><span>{{ result.years }}</span> years, <span>{{ result.months }}</span> months, <span>{{ result.days }}</span> days</p>
+          <p class="next-bday">Next birthday in <strong>{{ result.next_birthday_days }}</strong> day(s)</p>
+        </div>
+        {% endif %}
+      </section>
+    </main>
+  </body>
+</html>

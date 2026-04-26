@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}FemCare AI | Daily Tips{% endblock %}
+
+{% block content %}
+<section class="mb-5">
+  <h1 class="text-2xl font-extrabold">Daily Smart Tips Engine</h1>
+  <p class="text-slate-600">Generate cycle-based, pregnancy-based, and general hygiene tips in one place.</p>
+</section>
+
+<section class="grid xl:grid-cols-5 gap-4">
+  <article class="glass-panel p-5 xl:col-span-2">
+    <h2 class="text-lg font-bold">Tip Inputs</h2>
+    <form method="POST" class="mt-4 space-y-4 validated-form">
+      <div>
+        <label class="label" for="cycle_day">Cycle day (1-35)</label>
+        <input class="input-field" id="cycle_day" name="cycle_day" type="number" min="1" max="35" value="{{ form.cycle_day }}" placeholder="e.g. 14">
+      </div>
+      <div>
+        <label class="label" for="pregnancy_month">Pregnancy month (1-9)</label>
+        <input class="input-field" id="pregnancy_month" name="pregnancy_month" type="number" min="1" max="9" value="{{ form.pregnancy_month }}" placeholder="e.g. 6">
+      </div>
+      <button class="btn-primary w-full" type="submit">Generate Daily Tips</button>
+    </form>
+  </article>
+
+  <article class="glass-panel p-5 xl:col-span-3">
+    <h2 class="text-lg font-bold">Tips for {{ tips_result.date }}</h2>
+    <div class="mt-4 grid gap-3">
+      {% for tip in tips_result.tips %}
+        <div class="tip-item animate-fade-up">
+          <i class="fa-solid fa-circle-check text-emerald-500"></i>
+          <p>{{ tip }}</p>
+        </div>
+      {% endfor %}
+    </div>
+  </article>
+</section>
+{% endblock %}

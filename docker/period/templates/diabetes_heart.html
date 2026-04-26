@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}FemCare AI | Diabetes & Heart Health{% endblock %}
+
+{% block content %}
+<section class="rounded-3xl p-6 md:p-8 text-white hero-gradient animate-fade-up">
+  <p class="text-fem-100 text-sm uppercase tracking-wide">Daily Companion</p>
+  <h1 class="text-2xl md:text-4xl font-extrabold mt-2">Diabetes & Heart Health Management</h1>
+  <p class="text-fem-100 mt-3 max-w-3xl">Log glucose, blood pressure, activity, meals, and medications. Get simple trends, alerts, and supportive recommendations.</p>
+</section>
+
+<section class="mt-5 grid xl:grid-cols-3 gap-4">
+  <article class="glass-panel p-5">
+    <h2 class="font-bold">Log Glucose</h2>
+    <div class="mt-3 grid gap-2">
+      <select id="glucose-type" class="input-field">
+        <option value="fasting">Fasting</option>
+        <option value="pre_meal">Pre-meal</option>
+        <option value="post_meal">Post-meal</option>
+      </select>
+      <input id="glucose-value" class="input-field" type="number" placeholder="mg/dL">
+      <button id="save-glucose" class="btn-primary">Save Glucose</button>
+    </div>
+  </article>
+
+  <article class="glass-panel p-5">
+    <h2 class="font-bold">Log Heart Metrics</h2>
+    <div class="mt-3 grid gap-2">
+      <div class="grid grid-cols-2 gap-2">
+        <input id="bp-systolic" class="input-field" type="number" placeholder="Systolic">
+        <input id="bp-diastolic" class="input-field" type="number" placeholder="Diastolic">
+      </div>
+      <button id="save-bp" class="btn-primary">Save Blood Pressure</button>
+      <input id="heart-rate" class="input-field" type="number" placeholder="Heart rate (bpm)">
+      <button id="save-heart-rate" class="btn-primary">Save Heart Rate</button>
+      <input id="weight-value" class="input-field" type="number" placeholder="Weight (kg)">
+      <button id="save-weight" class="btn-primary">Save Weight</button>
+      <input id="activity-steps" class="input-field" type="number" placeholder="Activity steps">
+      <button id="save-activity" class="btn-primary">Save Activity</button>
+    </div>
+  </article>
+
+  <article class="glass-panel p-5">
+    <h2 class="font-bold">Meals & Medication</h2>
+    <div class="mt-3 grid gap-2">
+      <select id="meal-type" class="input-field">
+        <option value="breakfast">Breakfast</option>
+        <option value="lunch">Lunch</option>
+        <option value="dinner">Dinner</option>
+        <option value="snack">Snack</option>
+      </select>
+      <input id="meal-foods" class="input-field" placeholder="Foods eaten">
+      <button id="save-meal" class="btn-primary">Save Meal</button>
+
+      <input id="med-name" class="input-field" placeholder="Medicine / insulin name">
+      <input id="med-dosage" class="input-field" placeholder="Dosage">
+      <input id="med-time" class="input-field" placeholder="Reminder time (e.g., 08:00 AM)">
+      <button id="save-medication" class="btn-primary">Save Medication Reminder</button>
+    </div>
+  </article>
+</section>
+
+<section class="mt-5 grid xl:grid-cols-3 gap-4">
+  <article class="glass-panel p-5 xl:col-span-2">
+    <h2 class="font-bold">Daily & Weekly Trends</h2>
+    <div class="mt-3 grid md:grid-cols-3 gap-3">
+      <div class="tip-card">
+        <h3>Glucose Trend</h3>
+        <div id="trend-glucose" class="trend-list text-xs"></div>
+      </div>
+      <div class="tip-card">
+        <h3>Blood Pressure Trend</h3>
+        <div id="trend-bp" class="trend-list text-xs"></div>
+      </div>
+      <div class="tip-card">
+        <h3>Weight Trend</h3>
+        <div id="trend-weight" class="trend-list text-xs"></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="glass-panel p-5">
+    <h2 class="font-bold">Risk Alerts</h2>
+    <div id="risk-alerts" class="mt-3 grid gap-2 text-sm"></div>
+    <p class="text-xs text-slate-500 mt-3">If dangerous symptoms persist, seek medical care immediately.</p>
+  </article>
+</section>
+
+<section class="mt-5 grid xl:grid-cols-2 gap-4">
+  <article class="glass-panel p-5">
+    <h2 class="font-bold">Personal Health Timeline</h2>
+    <div id="health-timeline" class="mt-3 max-h-[300px] overflow-auto grid gap-2 text-sm"></div>
+  </article>
+
+  <article class="glass-panel p-5">
+    <h2 class="font-bold">AI Support Assistant</h2>
+    <div class="mt-3 grid gap-2">
+      <textarea id="assistant-question" class="input-field" rows="3" placeholder="Ask: Why is my sugar high after meals?"></textarea>
+      <button id="assistant-ask" class="btn-primary">Ask Assistant</button>
+      <div id="assistant-reply" class="tip-card text-sm"></div>
+    </div>
+  </article>
+</section>
+
+<section class="mt-5">
+  <div class="rounded-2xl border border-rose-200 bg-rose-50 p-4">
+    <p class="text-sm text-rose-800"><strong>Medical Disclaimer:</strong> This module is for educational and awareness purposes only and is not a substitute for professional medical advice, diagnosis, or treatment.</p>
+  </div>
+</section>
+{% endblock %}

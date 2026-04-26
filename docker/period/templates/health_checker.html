@@ -1,0 +1,409 @@
+{% extends 'base.html' %}
+
+{% block title %}FemCare AI | Health Checker{% endblock %}
+
+{% block content %}
+<section class="mb-5">
+  <h1 class="text-2xl font-extrabold">Complete Women Health & Pregnancy Assistant</h1>
+  <p class="text-slate-600">A supportive, safety-focused suite for women health, breast health, thyroid awareness, pregnancy, postpartum, and emotional wellness guidance.</p>
+</section>
+
+{% if errors %}
+<div class="rounded-2xl bg-rose-50 border border-rose-200 p-4 mb-4">
+  <ul class="text-sm text-rose-700 list-disc pl-5">
+    {% for error in errors %}
+      <li>{{ error }}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<section class="grid xl:grid-cols-2 gap-4">
+  <article class="glass-panel p-5">
+    <h2 class="font-bold text-lg">Breast Health Checker</h2>
+    <p class="text-sm text-slate-600 mt-1">Select symptoms for a supportive risk-level guide. This is not a diagnosis.</p>
+
+    <form method="POST" class="mt-4 space-y-3 validated-form">
+      <input type="hidden" name="action" value="breast_health_checker">
+      <div class="grid md:grid-cols-2 gap-3">
+        <select name="breast_lump" class="input-field"><option value="no">Lump in breast: No</option><option value="yes">Lump in breast: Yes</option></select>
+        <select name="breast_pain" class="input-field"><option value="no">Breast pain: No</option><option value="yes">Breast pain: Yes</option></select>
+        <select name="nipple_discharge" class="input-field"><option value="no">Nipple discharge: No</option><option value="yes">Nipple discharge: Yes</option></select>
+        <select name="skin_changes" class="input-field"><option value="no">Skin changes: No</option><option value="yes">Skin changes: Yes</option></select>
+      </div>
+      <button class="btn-primary" type="submit">Check Breast Health Status</button>
+    </form>
+
+    {% if breast_result %}
+      <div class="mt-4 status-card status-{{ breast_result.status }} animate-fade-up">
+        <p class="status-title">{{ breast_result.icon }} Risk Level: {{ breast_result.risk }}</p>
+        <p class="text-sm mt-2">{{ breast_result.explanation }}</p>
+        <p class="text-sm mt-2"><strong>Advice:</strong> {{ breast_result.advice }}</p>
+      </div>
+    {% endif %}
+  </article>
+
+  <article class="glass-panel p-5">
+    <h2 class="font-bold text-lg">Breast Self-Examination Guide</h2>
+    <p class="text-sm text-slate-600 mt-1">Simple monthly self-check routine with gentle step-by-step guidance.</p>
+
+    <div class="mt-4 grid gap-3">
+      {% for step in breast_self_steps %}
+        <div class="tip-item">
+          <i class="{{ step.icon }} text-fem-700 mt-1"></i>
+          <div>
+            <p class="font-semibold text-slate-800">{{ loop.index }}. {{ step.title }}</p>
+            <p class="text-sm text-slate-600 mt-1">{{ step.description }}</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </article>
+
+  <article class="glass-panel p-5">
+    <h2 class="font-bold text-lg">Mental Health & Stress Checker</h2>
+    <p class="text-sm text-slate-600 mt-1">Supportive emotional screening for stress and mood burden.</p>
+
+    <form method="POST" class="mt-4 space-y-3 validated-form">
+      <input type="hidden" name="action" value="mental_health_checker">
+      <div class="grid md:grid-cols-2 gap-3">
+        <select name="mood" class="input-field">
+          <option value="happy">Mood: Happy</option>
+          <option value="neutral">Mood: Neutral</option>
+          <option value="sad">Mood: Sad</option>
+          <option value="anxious">Mood: Anxious</option>
+        </select>
+        <select name="sleep_issues" class="input-field">
+          <option value="no">Sleep issues: No</option>
+          <option value="yes">Sleep issues: Yes</option>
+        </select>
+        <select name="stress_level" class="input-field">
+          <option value="low">Stress: Low</option>
+          <option value="medium">Stress: Medium</option>
+          <option value="high">Stress: High</option>
+        </select>
+        <select name="daily_interest" class="input-field">
+          <option value="normal">Interest in activities: Normal</option>
+          <option value="low">Interest in activities: Low</option>
+        </select>
+      </div>
+      <button class="btn-primary" type="submit">Check Emotional Wellness</button>
+    </form>
+
+    {% if mental_result %}
+      <div class="mt-4 status-card status-{{ mental_result.level }}">
+        <p class="status-title">{{ mental_result.icon }} {{ mental_result.title }}</p>
+        <p class="text-sm mt-2">{{ mental_result.message }}</p>
+        <ul class="text-sm list-disc pl-5 mt-2">
+          {% for tip in mental_result.tips %}
+            <li>{{ tip }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  </article>
+
+  <article class="glass-panel p-5">
+    <h2 class="font-bold text-lg">Emergency Mental Health Check</h2>
+    <p class="text-sm text-slate-600 mt-1">If you feel hopeless or no reason to live, seek help immediately.</p>
+
+    <form method="POST" class="mt-4 space-y-3 validated-form">
+      <input type="hidden" name="action" value="mental_emergency_text">
+      <textarea name="mental_text" rows="3" class="input-field" placeholder="Example: I feel hopeless"></textarea>
+      <button class="btn-primary" type="submit">Check Mental Emergency Status</button>
+    </form>
+
+    {% if mental_emergency_result %}
+      <div class="mt-4 status-card status-{{ mental_emergency_result.level }} animate-fade-up">
+        <p class="status-title">{{ mental_emergency_result.icon }} Mental Safety Guidance</p>
+        <p class="text-sm mt-2">{{ mental_emergency_result.message }}</p>
+      </div>
+    {% endif %}
+  </article>
+
+  <article class="glass-panel p-5">
+    <h2 class="font-bold text-lg">Thyroid Awareness Module</h2>
+    <p class="text-sm text-slate-600 mt-1">Educational checker for possible low/high thyroid imbalance signs.</p>
+
+    <form method="POST" class="mt-4 space-y-3 validated-form">
+      <input type="hidden" name="action" value="thyroid_checker">
+      <div class="grid md:grid-cols-2 gap-3">
+        <select name="weight_change" class="input-field">
+          <option value="none">Weight change: None</option>
+          <option value="gain">Weight change: Gain</option>
+          <option value="loss">Weight change: Loss</option>
+        </select>
+        <select name="fatigue" class="input-field">
+          <option value="no">Fatigue: No</option>
+          <option value="yes">Fatigue: Yes</option>
+        </select>
+        <select name="hair_fall" class="input-field">
+          <option value="no">Hair fall: No</option>
+          <option value="yes">Hair fall: Yes</option>
+        </select>
+        <select name="temp_sensitivity" class="input-field">
+          <option value="none">Temperature sensitivity: None</option>
+          <option value="cold">Temperature sensitivity: Cold</option>
+          <option value="heat">Temperature sensitivity: Heat</option>
+        </select>
+        <select name="thyroid_irregular_periods" class="input-field">
+          <option value="no">Irregular periods: No</option>
+          <option value="yes">Irregular periods: Yes</option>
+        </select>
+      </div>
+      <button class="btn-primary" type="submit">Assess Thyroid Awareness</button>
+    </form>
+
+    {% if thyroid_result %}
+      <div class="mt-4 status-card status-{{ thyroid_result.status }}">
+        <p class="status-title">{{ thyroid_result.icon }} Risk Level: {{ thyroid_result.risk }}</p>
+        <p class="text-sm mt-2">{{ thyroid_result.explanation }}</p>
+        <p class="text-sm mt-2"><strong>Pattern:</strong> {{ thyroid_result.possible_pattern }}</p>
+        <p class="text-sm mt-2"><strong>Advice:</strong> {{ thyroid_result.advice }}</p>
+      </div>
+    {% endif %}
+  </article>
+
+  <article class="glass-panel p-5 xl:col-span-2">
+    <h2 class="font-bold text-lg">Labor & Emergency Guide</h2>
+    <p class="text-sm text-slate-600 mt-1">Supportive triage for water break, fluid signs, infection signals, and baby movement concerns.</p>
+
+    <form method="POST" class="mt-4 space-y-3 validated-form" id="labor-form">
+      <input type="hidden" name="action" value="labor_emergency_checker">
+      <div class="grid md:grid-cols-5 gap-3">
+        <select name="water_broken" class="input-field" id="water_broken">
+          <option value="no">Water broken: No</option>
+          <option value="yes">Water broken: Yes</option>
+        </select>
+        <select name="fluid_color" class="input-field" id="fluid_color">
+          <option value="clear">Fluid color: Clear</option>
+          <option value="yellow">Fluid color: Yellow</option>
+          <option value="green">Fluid color: Green</option>
+          <option value="brown">Fluid color: Brown</option>
+        </select>
+        <select name="bad_smell" class="input-field" id="bad_smell">
+          <option value="no">Bad smell: No</option>
+          <option value="yes">Bad smell: Yes</option>
+        </select>
+        <select name="fever" class="input-field" id="fever">
+          <option value="no">Fever: No</option>
+          <option value="yes">Fever: Yes</option>
+        </select>
+        <select name="baby_movement" class="input-field" id="baby_movement">
+          <option value="normal">Movement: Normal</option>
+          <option value="reduced">Movement: Reduced</option>
+          <option value="none">Movement: None</option>
+        </select>
+      </div>
+
+      <button class="btn-primary" type="submit">Check Labor Safety Status</button>
+    </form>
+
+    <div id="labor-preview" class="status-card status-monitor mt-4 animate-fade-up">
+      <p class="status-title">⚠️ Live Monitor Preview</p>
+      <p class="text-sm">Adjust inputs to preview your urgency level before submitting.</p>
+    </div>
+
+    {% if labor_result %}
+      <div class="mt-4 grid md:grid-cols-3 gap-3">
+        {% for card in labor_result.cards %}
+          <div class="status-card status-{{ card.level }} animate-fade-up">
+            <p class="status-title">{{ card.icon }} {{ card.title }}</p>
+            <p class="text-sm mt-2">{{ card.message }}</p>
+          </div>
+        {% endfor %}
+      </div>
+
+      {% if labor_result.labor_stage_guidance %}
+        <div class="mt-4 step-panel">
+          <h3 class="font-bold text-slate-800">Labor Stage Guidance</h3>
+          <p class="mt-2 text-sm"><strong>{{ labor_result.labor_stage_guidance.heading }}</strong></p>
+          <ol class="step-list mt-3">
+            <li>1. Stay calm and breathe slowly.</li>
+            <li>2. Note the time when fluid started leaking.</li>
+            <li>3. {{ labor_result.labor_stage_guidance.contractions }}</li>
+            <li>4. {{ labor_result.labor_stage_guidance.advice }}</li>
+          </ol>
+        </div>
+      {% endif %}
+    {% endif %}
+  </article>
+
+  <article class="glass-panel p-5">
+    <h2 class="font-bold text-lg">Pregnancy Risk Checker</h2>
+    <form method="POST" class="mt-4 space-y-3 validated-form">
+      <input type="hidden" name="action" value="risk_checker">
+      <div class="grid md:grid-cols-2 gap-3">
+        <select name="high_bp" class="input-field"><option value="no">High Blood Pressure: No</option><option value="yes">High Blood Pressure: Yes</option></select>
+        <select name="bleeding" class="input-field"><option value="no">Bleeding: No</option><option value="yes">Bleeding: Yes</option></select>
+        <select name="diabetes" class="input-field"><option value="no">Diabetes: No</option><option value="yes">Diabetes: Yes</option></select>
+        <select name="pain_level" class="input-field"><option value="low">Pain: Low</option><option value="medium">Pain: Medium</option><option value="high">Pain: High</option></select>
+      </div>
+      <button class="btn-primary" type="submit">Check Risk</button>
+    </form>
+    {% if risk_result %}
+      <div class="mt-4 result-card">
+        <p class="result-label">Risk Level</p>
+        <p class="result-value">{{ risk_result.level }}</p>
+        <p class="text-sm mt-2 text-slate-700">{{ risk_result.message }}</p>
+        {% if risk_result.doctor_visit %}<p class="mt-2 text-sm font-semibold text-rose-700">Doctor visit is recommended.</p>{% endif %}
+      </div>
+    {% endif %}
+  </article>
+
+  <article class="glass-panel p-5">
+    <h2 class="font-bold text-lg">Leucorrhea Smart Checker</h2>
+    <form method="POST" class="mt-4 space-y-3 validated-form">
+      <input type="hidden" name="action" value="leucorrhea_checker">
+      <div class="grid md:grid-cols-3 gap-3">
+        <select name="color" class="input-field">
+          <option value="clear">Color: Clear</option>
+          <option value="white">Color: White</option>
+          <option value="yellow">Color: Yellow</option>
+          <option value="green">Color: Green</option>
+          <option value="gray">Color: Gray</option>
+        </select>
+        <select name="smell" class="input-field">
+          <option value="none">Smell: None</option>
+          <option value="mild">Smell: Mild</option>
+          <option value="fishy">Smell: Fishy</option>
+          <option value="foul">Smell: Foul</option>
+        </select>
+        <select name="itching" class="input-field">
+          <option value="no">Itching: No</option>
+          <option value="yes">Itching: Yes</option>
+        </select>
+      </div>
+      <button class="btn-primary" type="submit">Analyze Discharge</button>
+    </form>
+    {% if leucorrhea_result %}
+      <div class="mt-4 tip-card">
+        <h3>Status: {{ leucorrhea_result.status }}</h3>
+        <p class="text-sm mt-1">{{ leucorrhea_result.explanation }}</p>
+        <ul class="mt-2">
+          {% for item in leucorrhea_result.tips %}<li>{{ item }}</li>{% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  </article>
+
+  <article class="glass-panel p-5">
+    <h2 class="font-bold text-lg">Women Health Problem Checker</h2>
+    <form method="POST" class="mt-4 space-y-3 validated-form">
+      <input type="hidden" name="action" value="women_problem_checker">
+      <select name="problem_key" class="input-field" required>
+        <option value="">Select a problem</option>
+        <option value="pcos">PCOS</option>
+        <option value="hormonal_imbalance">Hormonal imbalance</option>
+        <option value="irregular_periods">Irregular periods</option>
+        <option value="heavy_bleeding">Heavy bleeding</option>
+        <option value="severe_cramps">Severe cramps</option>
+        <option value="missed_periods">Missed periods</option>
+        <option value="vaginal_infections">Vaginal infections</option>
+      </select>
+      <button class="btn-primary" type="submit">Get Causes & Advice</button>
+    </form>
+    {% if problem_result %}
+      <div class="mt-4 tip-card">
+        <p class="text-sm mb-2"><strong>Simple explanation:</strong> {{ problem_result.explanation }}</p>
+        <h3>Possible Causes</h3>
+        <ul>
+          {% for item in problem_result.causes %}<li>{{ item }}</li>{% endfor %}
+        </ul>
+        <p class="mt-2 text-sm"><strong>Advice:</strong> {{ problem_result.advice }}</p>
+      </div>
+    {% endif %}
+  </article>
+
+  <article class="glass-panel p-5">
+    <h2 class="font-bold text-lg">AI-like Symptom Checker</h2>
+    <form method="POST" class="mt-4 space-y-3 validated-form">
+      <input type="hidden" name="action" value="symptom_nlp_checker">
+      <textarea name="symptom_text" rows="4" class="input-field" placeholder="Example: I have severe pain, bleeding, and high fever"></textarea>
+      <button class="btn-primary" type="submit">Analyze Symptoms</button>
+    </form>
+    {% if symptom_result %}
+      <div class="mt-4 result-card">
+        <p class="result-label">Possible Issue</p>
+        <p class="result-value">{{ symptom_result.issue }}</p>
+        <p class="text-sm mt-2">{{ symptom_result.suggestion }}</p>
+        {% if symptom_result.emergency %}
+          <p class="mt-2 text-sm font-semibold text-rose-700">Emergency warning: seek urgent medical help.</p>
+        {% endif %}
+      </div>
+    {% endif %}
+  </article>
+
+  <article class="glass-panel p-5 xl:col-span-2">
+    <h2 class="font-bold text-lg">After Delivery Care</h2>
+    <p class="text-sm text-slate-600 mt-1">Postpartum support for normal recovery signs and urgent warning conditions.</p>
+
+    <div class="mt-4 grid md:grid-cols-2 gap-3">
+      <div class="tip-card">
+        <h3>✅ Normal Conditions</h3>
+        <ul>
+          <li>Light bleeding for weeks</li>
+          <li>Weakness</li>
+          <li>Mood changes</li>
+          <li>Breastfeeding start adjustments</li>
+        </ul>
+      </div>
+
+      <form method="POST" class="tip-card validated-form" id="postpartum-form">
+        <input type="hidden" name="action" value="postpartum_checker">
+        <h3>⚠️ Warning Conditions</h3>
+        <div class="mt-2 space-y-2 text-sm">
+          <label class="inline-flex items-center gap-2"><input type="checkbox" name="heavy_bleeding" value="yes"> Heavy bleeding (pads soaking quickly)</label>
+          <label class="inline-flex items-center gap-2"><input type="checkbox" name="high_fever" value="yes"> High fever</label>
+          <label class="inline-flex items-center gap-2"><input type="checkbox" name="severe_abdominal_pain" value="yes"> Severe abdominal pain</label>
+          <label class="inline-flex items-center gap-2"><input type="checkbox" name="foul_discharge" value="yes"> Foul-smelling discharge</label>
+          <label class="inline-flex items-center gap-2"><input type="checkbox" name="extreme_sadness" value="yes"> Extreme sadness or depression</label>
+        </div>
+        <button class="btn-primary mt-3" type="submit">Evaluate Postpartum Safety</button>
+      </form>
+    </div>
+
+    {% if postpartum_result %}
+      <div class="mt-4 status-card status-{{ postpartum_result.level }}">
+        <p class="status-title">{{ postpartum_result.icon }} Postpartum Safety Result</p>
+        <p class="text-sm mt-2">{{ postpartum_result.message }}</p>
+        {% if postpartum_result.triggered %}
+          <p class="text-sm font-semibold mt-3">Detected warning signs:</p>
+          <ul class="text-sm list-disc pl-5 mt-1">
+            {% for warning in postpartum_result.triggered %}
+              <li>{{ warning }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
+    {% endif %}
+  </article>
+
+  <article class="glass-panel p-5 xl:col-span-2">
+    <h2 class="font-bold text-lg">Smart Response System</h2>
+    <p class="text-sm text-slate-600 mt-1">Type your concern for a rapid, safety-focused guidance response.</p>
+
+    <form method="POST" class="mt-4 space-y-3 validated-form">
+      <input type="hidden" name="action" value="smart_emergency_response">
+      <textarea name="smart_text" rows="3" class="input-field" placeholder="Example: My water broke"></textarea>
+      <button class="btn-primary" type="submit">Get Smart Response</button>
+    </form>
+
+    {% if smart_response_result %}
+      <div class="mt-4 status-card status-{{ smart_response_result.level }} animate-fade-up">
+        <p class="status-title">{{ smart_response_result.icon }} {{ smart_response_result.title }}</p>
+        <p class="text-sm mt-2">{{ smart_response_result.response }}</p>
+      </div>
+    {% endif %}
+  </article>
+</section>
+
+<section class="mt-5">
+  <div class="rounded-2xl border border-rose-200 bg-rose-50 p-4">
+    <p class="text-sm text-rose-800">
+      <strong>Medical Disclaimer:</strong>
+      This application is for educational and informational purposes only. It is not a substitute for professional medical advice, diagnosis, or treatment. In emergencies, consult a healthcare professional immediately.
+    </p>
+  </div>
+</section>
+{% endblock %}

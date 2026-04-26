@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+
+{% block title %}FemCare AI | Women Fitness & Workout Trainer{% endblock %}
+
+{% block content %}
+<section class="rounded-3xl p-6 md:p-8 text-white fitness-hero animate-fade-up">
+  <p class="text-emerald-100 text-sm uppercase tracking-wide">Women Fitness & Workout Trainer</p>
+  <h1 class="text-2xl md:text-4xl font-extrabold mt-2">Train Smarter With Safe Daily Plans</h1>
+  <p class="text-purple-100 mt-3 max-w-3xl">Build your plan using your level, goal, and health profile. Designed as a supportive awareness-first trainer, not a medical system.</p>
+</section>
+
+{% if errors %}
+<div class="rounded-2xl bg-rose-50 border border-rose-200 p-4 my-4">
+  <ul class="text-sm text-rose-700 list-disc pl-5">
+    {% for error in errors %}
+      <li>{{ error }}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<section class="grid xl:grid-cols-5 gap-4 mt-5">
+  <article class="glass-panel p-5 xl:col-span-2">
+    <h2 class="text-lg font-bold">Smart Planner Inputs</h2>
+    <form method="POST" class="mt-4 space-y-4 validated-form" id="workout-planner-form">
+      <div>
+        <label class="label" for="workout_age">Age</label>
+        <input id="workout_age" name="age" type="number" min="13" max="60" value="{{ form.age }}" required class="input-field" placeholder="e.g. 27">
+      </div>
+
+      <div>
+        <label class="label" for="fitness_level">Fitness level</label>
+        <select id="fitness_level" name="fitness_level" class="input-field" required>
+          <option value="beginner" {% if form.fitness_level == 'beginner' %}selected{% endif %}>Beginner</option>
+          <option value="intermediate" {% if form.fitness_level == 'intermediate' %}selected{% endif %}>Intermediate</option>
+          <option value="advanced" {% if form.fitness_level == 'advanced' %}selected{% endif %}>Advanced</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="label" for="goal">Goal</label>
+        <select id="goal" name="goal" class="input-field" required>
+          <option value="fitness" {% if form.goal == 'fitness' %}selected{% endif %}>Fitness</option>
+          <option value="weight_loss" {% if form.goal == 'weight_loss' %}selected{% endif %}>Weight loss</option>
+          <option value="weight_gain" {% if form.goal == 'weight_gain' %}selected{% endif %}>Weight gain</option>
+          <option value="pregnancy_safe" {% if form.goal == 'pregnancy_safe' %}selected{% endif %}>Pregnancy-safe fitness</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="label" for="activity_level">Activity level</label>
+        <select id="activity_level" name="activity_level" class="input-field" required>
+          <option value="low" {% if form.activity_level == 'low' %}selected{% endif %}>Low</option>
+          <option value="medium" {% if form.activity_level == 'medium' %}selected{% endif %}>Medium</option>
+          <option value="high" {% if form.activity_level == 'high' %}selected{% endif %}>High</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="label" for="cycle_phase">Cycle phase adjustment</label>
+        <select id="cycle_phase" name="cycle_phase" class="input-field" required>
+          <option value="regular" {% if form.cycle_phase == 'regular' %}selected{% endif %}>Regular / Balanced</option>
+          <option value="period" {% if form.cycle_phase == 'period' %}selected{% endif %}>Period (Low Intensity)</option>
+          <option value="ovulation" {% if form.cycle_phase == 'ovulation' %}selected{% endif %}>Ovulation (Higher Energy)</option>
+          <option value="late_luteal" {% if form.cycle_phase == 'late_luteal' %}selected{% endif %}>Late Luteal (Moderate)</option>
+        </select>
+      </div>
+
+      <div class="rounded-xl bg-white/80 border border-fem-100 p-3 text-sm">
+        <p class="font-semibold mb-2">Health conditions</p>
+        <div class="grid grid-cols-3 gap-2">
+          <label class="inline-flex items-center gap-2"><input type="checkbox" name="thyroid" value="yes" {% if form.thyroid == 'yes' %}checked{% endif %}> Thyroid</label>
+          <label class="inline-flex items-center gap-2"><input type="checkbox" name="pcos" value="yes" {% if form.pcos == 'yes' %}checked{% endif %}> PCOS</label>
+          <label class="inline-flex items-center gap-2"><input type="checkbox" name="pregnancy" value="yes" {% if form.pregnancy == 'yes' %}checked{% endif %}> Pregnancy</label>
+        </div>
+      </div>
+
+      <button class="btn-primary w-full" type="submit">Generate Daily Workout Plan</button>
+    </form>
+  </article>
+
+  <article class="glass-panel p-5 xl:col-span-3">
+    <div class="flex items-center justify-between gap-3 flex-wrap">
+      <h2 class="text-lg font-bold">Daily Workout Plan</h2>
+      <span class="text-xs px-3 py-1 rounded-full bg-fem-100 text-fem-700">Mobile-app style</span>
+    </div>
+
+    {% if result %}
+      {% set icon_map = {
+        "warmup_walk": "fa-shoe-prints",
+        "squats": "fa-person",
+        "lunges": "fa-person-walking",
+        "plank": "fa-grip-lines",
+        "brisk_walk": "fa-person-walking",
+        "stretching": "fa-child-reaching",
+        "prenatal_yoga": "fa-spa",
+        "breathing": "fa-wind",
+        "mountain_climbers": "fa-mountain",
+        "glute_bridge": "fa-bridge"
+      } %}
+      {% if result.is_pregnancy_mode %}
+        <div class="status-card status-monitor mt-4">
+          <p class="status-title">🟡 Pregnancy Safe Mode Active</p>
+          <p class="text-sm mt-2">{{ result.safety_warning }}</p>
+        </div>
+      {% endif %}
+
+      <div id="workout-session" class="mt-4 workout-progress-wrap" data-plan-id="{{ plan_id or '' }}" data-completed-keys='{{ completed_keys|tojson }}'>
+        <div class="flex items-center justify-between text-sm">
+          <p class="font-semibold">Completed Exercises</p>
+          <p><span id="workout-completed-count">{{ completed_keys|length }}</span>/<span id="workout-total-count">{{ result.all_exercises|length }}</span></p>
+        </div>
+        <div class="h-2 mt-2 rounded-full bg-fem-100 overflow-hidden">
+          <div id="workout-progress-bar" class="h-full workout-progress-fill" style="width: {{ (completed_keys|length * 100 // (result.all_exercises|length if result.all_exercises|length else 1)) }}%"></div>
+        </div>
+        <p class="text-xs text-slate-500 mt-2">Streak: <span id="workout-streak">{{ streak_count }}</span> day(s)</p>
+      </div>
+
+      <div class="mt-3 text-xs text-slate-500">{{ result.cycle_note }}</div>
+
+      <div id="timer-panel" class="workout-timer-panel mt-4 hidden">
+        <p class="text-xs uppercase tracking-wide text-slate-500">Live Exercise Timer</p>
+        <p id="timer-exercise-title" class="font-bold text-slate-800 mt-1">Exercise</p>
+        <p id="timer-display" class="workout-timer-text">00:00</p>
+        <div class="flex gap-2 mt-2">
+          <button type="button" id="timer-stop-btn" class="workout-secondary-btn">Stop</button>
+          <button type="button" id="timer-next-btn" class="workout-secondary-btn">Next Exercise</button>
+        </div>
+      </div>
+
+      <h3 class="font-semibold mt-5">Day 1 Plan</h3>
+      <div class="grid md:grid-cols-2 gap-3 mt-3">
+        {% for ex in result.day1 %}
+          <article class="workout-card {% if ex.key in completed_keys %}done{% endif %}" data-exercise-key="{{ ex.key }}" data-duration="{{ ex.timer_seconds }}" data-exercise-name="{{ ex.name }}">
+            <div class="workout-visual workout-visual-{{ ex.difficulty|lower }}">
+              <i class="fa-solid {{ icon_map.get(ex.key, 'fa-dumbbell') }} workout-visual-icon"></i>
+              <p class="workout-visual-label">{{ ex.name }}</p>
+            </div>
+            <div class="p-3">
+              <div class="flex items-start justify-between gap-2">
+                <h4 class="font-bold text-slate-800">{{ ex.name }}</h4>
+                <span class="difficulty-chip difficulty-{{ ex.difficulty|lower }}">{{ ex.difficulty }}</span>
+              </div>
+              <p class="text-sm text-slate-600 mt-1">{{ ex.target }} | {{ ex.sets }}</p>
+              <p class="text-xs text-slate-500 mt-2">{{ ex.notes }}</p>
+              <p class="text-xs text-slate-500 mt-1">{{ ex.instructions }}</p>
+              <div class="flex gap-2 mt-3">
+                <button type="button" class="btn-primary workout-start-btn">Start Exercise</button>
+                <button type="button" class="workout-secondary-btn workout-complete-btn">Mark Complete</button>
+              </div>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+
+      <h3 class="font-semibold mt-6">Day 2 Plan</h3>
+      <div class="grid md:grid-cols-2 gap-3 mt-3">
+        {% for ex in result.day2 %}
+          <article class="workout-card {% if ex.key in completed_keys %}done{% endif %}" data-exercise-key="{{ ex.key }}" data-duration="{{ ex.timer_seconds }}" data-exercise-name="{{ ex.name }}">
+            <div class="workout-visual workout-visual-{{ ex.difficulty|lower }}">
+              <i class="fa-solid {{ icon_map.get(ex.key, 'fa-dumbbell') }} workout-visual-icon"></i>
+              <p class="workout-visual-label">{{ ex.name }}</p>
+            </div>
+            <div class="p-3">
+              <div class="flex items-start justify-between gap-2">
+                <h4 class="font-bold text-slate-800">{{ ex.name }}</h4>
+                <span class="difficulty-chip difficulty-{{ ex.difficulty|lower }}">{{ ex.difficulty }}</span>
+              </div>
+              <p class="text-sm text-slate-600 mt-1">{{ ex.target }} | {{ ex.sets }}</p>
+              <p class="text-xs text-slate-500 mt-2">{{ ex.notes }}</p>
+              <p class="text-xs text-slate-500 mt-1">{{ ex.instructions }}</p>
+              <div class="flex gap-2 mt-3">
+                <button type="button" class="btn-primary workout-start-btn">Start Exercise</button>
+                <button type="button" class="workout-secondary-btn workout-complete-btn">Mark Complete</button>
+              </div>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-3 mt-5 text-sm">
+        <div class="tip-card"><strong>Hydration:</strong> {{ result.hydration_note }}</div>
+        <div class="tip-card"><strong>Rest:</strong> {{ result.rest_note }}</div>
+      </div>
+    {% else %}
+      <div class="empty-state mt-4">
+        <p>Fill your profile to generate a visual daily workout plan with timer and progress tracking.</p>
+      </div>
+    {% endif %}
+  </article>
+</section>
+
+<section class="mt-5">
+  <div class="rounded-2xl border border-rose-200 bg-rose-50 p-4">
+    <p class="text-sm text-rose-800"><strong>Medical Disclaimer:</strong> This application is for educational and informational purposes only. It is not a substitute for professional medical advice, diagnosis, or treatment. In emergencies, consult a healthcare professional immediately.</p>
+  </div>
+</section>
+{% endblock %}

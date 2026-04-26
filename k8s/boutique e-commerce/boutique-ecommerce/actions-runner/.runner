@@ -1,0 +1,11 @@
+﻿{
+  "agentId": 2,
+  "agentName": "DESKTOP-QLF23OC",
+  "poolId": 1,
+  "poolName": "Default",
+  "serverUrl": "https://pipelinesghubeus3.actions.githubusercontent.com/7CbWvtGbZcBIlCVbbhuk0QSaD66JV2xzjsPpe0TJxL5k7KhREv/",
+  "gitHubUrl": "https://github.com/Ayesha-Siddiqa-khan/Devops",
+  "workFolder": "_work",
+  "useV2Flow": true,
+  "serverUrlV2": "https://broker.actions.githubusercontent.com/"
+}

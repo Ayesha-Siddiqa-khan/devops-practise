@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}FemCare AI | Module Form{% endblock %}
+
+{% block content %}
+<section class="max-w-3xl glass-panel p-6">
+  <h1 class="text-2xl font-extrabold">{% if module %}Edit Module{% else %}Create Module{% endif %}</h1>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="mt-4 space-y-2">
+        {% for category, message in messages %}
+          <p class="text-sm {% if category == 'error' %}text-rose-700{% else %}text-emerald-700{% endif %}">{{ message }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <form method="POST" class="mt-4 grid md:grid-cols-2 gap-4 validated-form">
+    <div class="md:col-span-2">
+      <label class="label" for="title">Title</label>
+      <input id="title" name="title" class="input-field" required value="{{ module.title if module else '' }}">
+    </div>
+    <div class="md:col-span-2">
+      <label class="label" for="description">Description</label>
+      <input id="description" name="description" class="input-field" required value="{{ module.description if module else '' }}">
+    </div>
+    <div>
+      <label class="label" for="category">Category</label>
+      <input id="category" name="category" class="input-field" required value="{{ module.category if module else 'women_health' }}">
+    </div>
+    <div>
+      <label class="label" for="route">Route slug</label>
+      <input id="route" name="route" class="input-field" required value="{{ module.route if module else '' }}">
+    </div>
+    <div>
+      <label class="label" for="icon">FontAwesome icon class suffix</label>
+      <input id="icon" name="icon" class="input-field" value="{{ module.icon if module else 'fa-heart' }}">
+    </div>
+    <div>
+      <label class="label" for="status">Status</label>
+      <select id="status" name="status" class="input-field">
+        <option value="active" {% if not module or module.status == 'active' %}selected{% endif %}>active</option>
+        <option value="inactive" {% if module and module.status == 'inactive' %}selected{% endif %}>inactive</option>
+      </select>
+    </div>
+    <div class="md:col-span-2">
+      <label class="label" for="target_url">Target URL (optional)</label>
+      <input id="target_url" name="target_url" class="input-field" placeholder="/health" value="{{ module.target_url if module and module.target_url else '' }}">
+    </div>
+    <div class="md:col-span-2">
+      <button class="btn-primary" type="submit">Save Module</button>
+      <a class="ml-3 text-slate-600" href="{{ url_for('admin_modules') }}">Cancel</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

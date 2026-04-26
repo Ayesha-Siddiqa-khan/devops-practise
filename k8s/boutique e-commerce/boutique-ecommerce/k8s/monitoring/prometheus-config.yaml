@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: boutique-app
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+
+    scrape_configs:
+      - job_name: "kubernetes-services-health"
+        metrics_path: /health
+        static_configs:
+          - targets:
+              - api-gateway-service:4000
+              - auth-service:4001
+              - product-service:4002
+              - cart-service:4003
+              - order-service:4004
+              - user-service:4005
+              - payment-service:4006

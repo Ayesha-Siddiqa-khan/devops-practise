@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}FemCare AI | Pregnancy Tracker{% endblock %}
+
+{% block content %}
+<section class="mb-5">
+  <h1 class="text-2xl font-extrabold">Pregnancy Tracker (Month 1-9)</h1>
+  <p class="text-slate-600">Pick your current month to view baby development, symptoms, diet tips, and precautions.</p>
+</section>
+
+{% if errors %}
+<div class="rounded-2xl bg-rose-50 border border-rose-200 p-4 mb-4">
+  <ul class="text-sm text-rose-700 list-disc pl-5">
+    {% for error in errors %}
+      <li>{{ error }}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<section class="grid xl:grid-cols-5 gap-4">
+  <article class="glass-panel p-5 xl:col-span-2">
+    <h2 class="text-lg font-bold">Select Pregnancy Month</h2>
+    <form method="POST" class="mt-4 space-y-4 validated-form">
+      <div>
+        <label class="label" for="pregnancy_month">Current month</label>
+        <select id="pregnancy_month" name="pregnancy_month" class="input-field" required>
+          <option value="">Choose month</option>
+          {% for m in range(1, 10) %}
+            <option value="{{ m }}" {% if selected_month == m|string %}selected{% endif %}>Month {{ m }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button class="btn-primary w-full" type="submit">Show My Month Plan</button>
+    </form>
+
+    <div class="mt-5">
+      <p class="text-sm font-semibold mb-2">Pregnancy Progress</p>
+      <div class="h-3 w-full rounded-full bg-fem-100 overflow-hidden">
+        <div class="h-full bg-gradient-to-r from-fem-500 to-violet-400" style="width: {{ (selected_month|int * 100 // 9) if selected_month else 0 }}%"></div>
+      </div>
+      <p class="text-xs text-slate-500 mt-1">{{ selected_month if selected_month else 0 }}/9 months</p>
+    </div>
+  </article>
+
+  <article class="glass-panel p-5 xl:col-span-3">
+    <h2 class="text-lg font-bold">Month Insights</h2>
+    {% if month_details %}
+    <div class="mt-4 grid md:grid-cols-2 gap-3">
+      <div class="result-card">
+        <p class="result-label">Baby Development</p>
+        <p class="result-value text-base">{{ month_details.baby_development }}</p>
+      </div>
+      <div class="result-card">
+        <p class="result-label">Mother Body Changes</p>
+        <p class="result-value text-base">{{ month_details.mother_changes }}</p>
+      </div>
+    </div>
+
+    <div class="mt-4 grid md:grid-cols-3 gap-3 text-sm">
+      <div class="tip-card">
+        <h3>Symptoms</h3>
+        <ul>
+          {% for item in month_details.symptoms %}<li>{{ item }}</li>{% endfor %}
+        </ul>
+      </div>
+      <div class="tip-card">
+        <h3>Diet Tips</h3>
+        <ul>
+          {% for item in month_details.diet_tips %}<li>{{ item }}</li>{% endfor %}
+        </ul>
+      </div>
+      <div class="tip-card">
+        <h3>Precautions</h3>
+        <ul>
+          {% for item in month_details.precautions %}<li>{{ item }}</li>{% endfor %}
+        </ul>
+      </div>
+    </div>
+    {% else %}
+      <div class="empty-state mt-4">
+        <p>Select a month to load your personalized pregnancy guidance.</p>
+      </div>
+    {% endif %}
+  </article>
+</section>
+{% endblock %}

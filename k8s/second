@@ -1,0 +1,26 @@
+#! bin/bash 
+GitHub is a web-based platform used for version control and collaborative software development. It is built on Git, a distributed version control system created by Linus Torvalds.
+
+Key Features:
+
+Repositories (Repos): Store project files and code.
+
+Version Control: Track changes in code over time.
+
+Branching & Merging: Work on new features without affecting the main project.
+
+Pull Requests: Propose and review code changes.
+
+Collaboration: Multiple developers can work on the same project.
+
+GitHub Actions: Automate workflows like testing and deployment.
+
+Why GitHub is Important:
+
+Helps developers manage and organize code.
+
+Enables teamwork and open-source contributions.
+
+Acts as a portfolio to showcase projects.
+
+Provides cloud backup for code.

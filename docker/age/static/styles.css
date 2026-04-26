@@ -1,0 +1,159 @@
+:root {
+  --bg-1: #f6f1e8;
+  --bg-2: #d6e3f8;
+  --ink: #1d2433;
+  --muted: #4f5869;
+  --accent: #d95d39;
+  --accent-dark: #b74a2d;
+  --card: #fffdf8;
+  --ok: #1f7a4f;
+  --danger: #b3261e;
+  --shadow: 0 18px 40px rgba(29, 36, 51, 0.16);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Space Grotesk", sans-serif;
+  color: var(--ink);
+  background: radial-gradient(circle at 8% 10%, #fff8e2 0%, transparent 30%),
+    radial-gradient(circle at 90% 20%, #cfe0ff 0%, transparent 35%),
+    linear-gradient(130deg, var(--bg-1), var(--bg-2));
+}
+
+.page-wrap {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem 1rem;
+}
+
+.card {
+  width: min(560px, 100%);
+  background: var(--card);
+  border: 2px solid rgba(29, 36, 51, 0.08);
+  border-radius: 24px;
+  padding: 2rem;
+  box-shadow: var(--shadow);
+  animation: rise 500ms ease both;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+h1 {
+  margin: 0.2rem 0 0.5rem;
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+}
+
+.subtitle {
+  margin: 0 0 1.4rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.age-form {
+  display: grid;
+  gap: 0.7rem;
+}
+
+label {
+  font-weight: 600;
+}
+
+input[type="date"] {
+  border: 1.5px solid rgba(29, 36, 51, 0.2);
+  border-radius: 12px;
+  padding: 0.75rem 0.85rem;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+input[type="date"]:focus {
+  outline: 2px solid rgba(217, 93, 57, 0.35);
+  border-color: var(--accent);
+}
+
+button {
+  margin-top: 0.2rem;
+  border: 0;
+  background: var(--accent);
+  color: #fff;
+  padding: 0.8rem 1rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 180ms ease, transform 180ms ease;
+}
+
+button:hover {
+  background: var(--accent-dark);
+  transform: translateY(-1px);
+}
+
+.feedback {
+  margin: 1rem 0 0;
+  padding: 0.7rem 0.8rem;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.error {
+  background: #ffe8e6;
+  color: var(--danger);
+}
+
+.result {
+  margin-top: 1.2rem;
+  background: #ebfff4;
+  border: 1px solid rgba(31, 122, 79, 0.25);
+  color: var(--ok);
+  border-radius: 14px;
+  padding: 1rem;
+}
+
+.result h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+}
+
+.result p {
+  margin: 0.3rem 0;
+}
+
+.result span {
+  font-size: 1.2em;
+  font-weight: 700;
+}
+
+.next-bday {
+  color: #246546;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 560px) {
+  .card {
+    padding: 1.4rem;
+    border-radius: 16px;
+  }
+}

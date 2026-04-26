@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}FemCare AI | Admin Modules{% endblock %}
+
+{% block content %}
+<section class="flex items-center justify-between gap-3 flex-wrap">
+  <div>
+    <h1 class="text-2xl font-extrabold">Admin Module Creator</h1>
+    <p class="text-sm text-slate-600">Create, edit, and delete shared dashboard modules for all users.</p>
+  </div>
+  <a href="{{ url_for('admin_modules_new') }}" class="btn-primary">Add New Module</a>
+</section>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="mt-4 space-y-2">
+      {% for category, message in messages %}
+        <p class="text-sm {% if category == 'error' %}text-rose-700{% else %}text-emerald-700{% endif %}">{{ message }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<section class="mt-5 glass-panel p-4 overflow-x-auto">
+  <table class="w-full text-sm">
+    <thead>
+      <tr class="text-left text-slate-600 border-b border-slate-200">
+        <th class="py-2 pr-3">Title</th>
+        <th class="py-2 pr-3">Category</th>
+        <th class="py-2 pr-3">Route</th>
+        <th class="py-2 pr-3">Status</th>
+        <th class="py-2 pr-3">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for module in modules %}
+        <tr class="border-b border-slate-100">
+          <td class="py-2 pr-3">{{ module.title }}</td>
+          <td class="py-2 pr-3">{{ module.category }}</td>
+          <td class="py-2 pr-3">/module/{{ module.route }}</td>
+          <td class="py-2 pr-3">{{ module.status }}</td>
+          <td class="py-2 pr-3">
+            <a href="{{ url_for('admin_modules_edit', module_id=module.id) }}" class="text-fem-700 font-semibold mr-3">Edit</a>
+            <form method="POST" action="{{ url_for('admin_modules_delete', module_id=module.id) }}" style="display:inline;">
+              <button type="submit" class="text-rose-700 font-semibold">Delete</button>
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

@@ -1,0 +1,149 @@
+{
+  "name": "Auto Email Sender (Cron + AI + Gmail)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * 1-5"
+            }
+          ]
+        }
+      },
+      "id": "CronTrigger",
+      "name": "Cron Trigger (9 AM Weekdays)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "notes": "Runs every weekday at 9:00 AM. Change the cron expression to fit your schedule."
+    },
+    {
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "chat",
+        "operation": "send",
+        "modelId": {
+          "__rl": true,
+          "value": "claude-opus-4-5",
+          "mode": "list"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "Write a short, friendly, professional daily motivation email for a software development team. Include:\n1. A catchy subject line (prefix it with SUBJECT:)\n2. A warm greeting\n3. One motivational insight or tip for developers (3-4 sentences)\n4. A positive closing line\n\nKeep the total email body under 150 words. Format: first line = SUBJECT: ..., then blank line, then the email body."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ClaudeAI",
+      "name": "Generate Email with Claude AI",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1,
+      "position": [500, 300],
+      "credentials": {
+        "anthropicApi": {
+          "name": "Anthropic API"
+        }
+      },
+      "notes": "Uses Claude to generate a unique email each time. Update the prompt to match your use case."
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "rawText",
+              "value": "={{$json[\"text\"]}}"
+            },
+            {
+              "name": "subject",
+              "value": "={{$json[\"text\"].split('\\n')[0].replace('SUBJECT:', '').trim()}}"
+            },
+            {
+              "name": "body",
+              "value": "={{$json[\"text\"].split('\\n').slice(2).join('\\n').trim()}}"
+            }
+          ]
+        }
+      },
+      "id": "ParseAIOutput",
+      "name": "Parse Subject & Body",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [750, 300],
+      "notes": "Splits the AI output into subject line and email body."
+    },
+    {
+      "parameters": {
+        "sendTo": "team@yourcompany.com",
+        "subject": "={{$json[\"subject\"]}}",
+        "emailType": "text",
+        "message": "={{$json[\"body\"]}}",
+        "options": {
+          "ccList": "",
+          "bccList": "",
+          "replyTo": "noreply@yourcompany.com",
+          "appendAttribution": false
+        }
+      },
+      "id": "GmailSend",
+      "name": "Send via Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [1000, 300],
+      "credentials": {
+        "gmailOAuth2": {
+          "name": "Gmail OAuth2"
+        }
+      },
+      "notes": "Replace sendTo with your recipient email. Connect your Gmail OAuth2 credentials in n8n."
+    }
+  ],
+  "connections": {
+    "Cron Trigger (9 AM Weekdays)": {
+      "main": [
+        [
+          {
+            "node": "Generate Email with Claude AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Email with Claude AI": {
+      "main": [
+        [
+          {
+            "node": "Parse Subject & Body",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Subject & Body": {
+      "main": [
+        [
+          {
+            "node": "Send via Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1",
+  "meta": {
+    "description": "Automatically generates a personalized email using Claude AI and sends it via Gmail on a scheduled cron trigger. Runs every weekday at 9 AM by default."
+  }
+}

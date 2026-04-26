@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Period Calculator and Female Health Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <main class="page-wrapper">
+    <header class="hero">
+      <div class="hero-badge">Female Wellness</div>
+      <h1>Menstruation (Period) Calculator and Health Assistant</h1>
+      <p>Track your cycle, understand your fertile window, and get basic wellness guidance.</p>
+    </header>
+
+    {% if errors %}
+      <section class="card error-card" aria-live="polite">
+        <h2>Please fix these inputs</h2>
+        <ul>
+          {% for error in errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      </section>
+    {% endif %}
+
+    <section class="grid-layout">
+      <article class="card">
+        <h2>Period Calculator</h2>
+        <form method="POST" id="calculator-form" novalidate>
+          <div class="field-group">
+            <label for="last_period_date">Last period date</label>
+            <input type="date" id="last_period_date" name="last_period_date" value="{{ request.form.get('last_period_date', '') }}" max="{{ today }}" required>
+          </div>
+
+          <div class="field-group">
+            <label for="cycle_length">Cycle length (days)</label>
+            <input type="number" id="cycle_length" name="cycle_length" value="{{ request.form.get('cycle_length', '') }}" min="21" max="45" placeholder="e.g. 28" required>
+          </div>
+
+          <button type="submit" class="btn-primary">Calculate</button>
+        </form>
+
+        {% if result %}
+          <div class="result-panel" aria-live="polite">
+            <h3>Your Estimated Dates</h3>
+            <p><strong>Next period:</strong> {{ result.next_period }}</p>
+            <p><strong>Ovulation day:</strong> {{ result.ovulation_day }}</p>
+            <p><strong>Fertile window:</strong> {{ result.fertile_window }}</p>
+          </div>
+        {% endif %}
+      </article>
+
+      <article class="card">
+        <h2>Symptom Checker (Basic)</h2>
+        <p class="subtle">Select symptoms and receive general wellness guidance.</p>
+
+        <form method="POST" id="symptom-form">
+          <div class="checkbox-grid">
+            <label><input type="checkbox" name="symptoms" value="cramps" {% if 'cramps' in selected_symptoms %}checked{% endif %}> Cramps</label>
+            <label><input type="checkbox" name="symptoms" value="headache" {% if 'headache' in selected_symptoms %}checked{% endif %}> Headache</label>
+            <label><input type="checkbox" name="symptoms" value="mood_swings" {% if 'mood_swings' in selected_symptoms %}checked{% endif %}> Mood swings</label>
+            <label><input type="checkbox" name="symptoms" value="irregular_periods" {% if 'irregular_periods' in selected_symptoms %}checked{% endif %}> Irregular periods</label>
+          </div>
+
+          <input type="hidden" name="last_period_date" value="{{ request.form.get('last_period_date', '') }}">
+          <input type="hidden" name="cycle_length" value="{{ request.form.get('cycle_length', '') }}">
+
+          <button type="submit" class="btn-secondary">Show Advice</button>
+        </form>
+
+        {% if symptom_advice %}
+          <div class="advice-panel" aria-live="polite">
+            <h3>General Advice</h3>
+            {% for item in symptom_advice %}
+              <p><strong>{{ item.name }}:</strong> {{ item.advice }}</p>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </article>
+    </section>
+
+    <section class="card tips-card">
+      <h2>Health Tips During Periods</h2>
+      <div class="tips-grid">
+        <div>
+          <h3>Diet</h3>
+          <ul>
+            <li>Eat iron-rich foods like leafy greens, lentils, and beans.</li>
+            <li>Include fruits, nuts, and whole grains for energy support.</li>
+            <li>Stay hydrated and reduce excess salt and caffeine.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Exercise</h3>
+          <ul>
+            <li>Try light walking, yoga, or stretching to ease discomfort.</li>
+            <li>Prioritize rest when you feel fatigued.</li>
+            <li>Consistency in gentle activity can help mood and cramps.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Hygiene</h3>
+          <ul>
+            <li>Change pads/tampons regularly as recommended.</li>
+            <li>Keep the area clean and dry with gentle products.</li>
+            <li>Wear comfortable, breathable cotton underwear.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <footer class="disclaimer">
+      <p><strong>Disclaimer:</strong> This is not medical advice. For diagnosis or treatment, consult a qualified healthcare professional.</p>
+    </footer>
+  </main>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

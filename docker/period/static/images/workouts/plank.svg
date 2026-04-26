@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="420" viewBox="0 0 640 420" fill="none">
+  <rect width="640" height="420" rx="28" fill="#EFFCF5"/>
+  <circle cx="200" cy="190" r="28" fill="#BDEBCC"/>
+  <rect x="220" y="168" width="260" height="52" rx="26" fill="#3FAE70"/>
+  <rect x="480" y="176" width="84" height="26" rx="13" fill="#2F8F5A"/>
+  <rect x="188" y="215" width="30" height="78" rx="15" fill="#2F8F5A"/>
+  <rect x="488" y="215" width="30" height="78" rx="15" fill="#2F8F5A"/>
+  <text x="30" y="382" fill="#1C7A49" font-size="26" font-family="Arial">Plank</text>
+</svg>

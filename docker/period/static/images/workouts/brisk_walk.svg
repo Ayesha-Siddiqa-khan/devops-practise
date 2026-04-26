@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="420" viewBox="0 0 640 420" fill="none">
+  <rect width="640" height="420" rx="28" fill="#F8F3FF"/>
+  <circle cx="300" cy="86" r="32" fill="#DBC7FF"/>
+  <rect x="262" y="122" width="84" height="96" rx="28" fill="#8452F8"/>
+  <rect x="250" y="214" width="52" height="98" rx="24" fill="#6533CC"/>
+  <rect x="318" y="214" width="92" height="44" rx="20" fill="#6533CC"/>
+  <rect x="208" y="158" width="56" height="20" rx="10" fill="#A984FF"/>
+  <rect x="346" y="156" width="76" height="20" rx="10" fill="#A984FF"/>
+  <text x="30" y="382" fill="#5F2EC2" font-size="26" font-family="Arial">Walking / Jogging</text>
+</svg>
