@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RecipeBook</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #faf7f2;
+      --warm: #f5ede0;
+      --paper: #fffdf9;
+      --ink: #1a1208;
+      --muted: #8a7968;
+      --accent: #c84b2f;
+      --accent-light: #f0e8e4;
+      --green: #3d6b4f;
+      --gold: #c4912a;
+      --border: #e8ddd0;
+      --shadow: rgba(26,18,8,0.08);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--cream);
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--ink);
+      color: var(--cream);
+      padding: 0 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo span { color: var(--accent); }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 100px;
+      padding: 8px 18px;
+      gap: 10px;
+      width: 300px;
+      transition: all 0.2s;
+    }
+    .search-bar:focus-within {
+      background: rgba(255,255,255,0.13);
+      border-color: rgba(255,255,255,0.3);
+    }
+    .search-bar input {
+      background: none;
+      border: none;
+      outline: none;
+      color: white;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      width: 100%;
+    }
+    .search-bar input::placeholder { color: rgba(255,255,255,0.4); }
+    .search-icon { color: rgba(255,255,255,0.4); font-size: 1rem; }
+
+    .header-right {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: var(--ink);
+      color: var(--cream);
+      padding: 60px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      right: -100px;
+      top: -100px;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(200,75,47,0.15) 0%, transparent 70%);
+    }
+    .hero-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
+    }
+    .hero-text h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+    .hero-text h1 em {
+      font-style: italic;
+      color: var(--accent);
+    }
+    .hero-text p {
+      color: rgba(250,247,242,0.6);
+      font-size: 1.05rem;
+      line-height: 1.7;
+      max-width: 420px;
+    }
+    .hero-stats {
+      display: flex;
+      gap: 32px;
+      margin-top: 32px;
+    }
+    .stat { text-align: center; }
+    .stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .stat-label {
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(250,247,242,0.4);
+      margin-top: 2px;
+    }
+    .hero-emojis {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .hero-emoji-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      font-size: 2.5rem;
+      transition: transform 0.2s;
+    }
+    .hero-emoji-card:hover { transform: scale(1.05); }
+
+    /* ── Main layout ── */
+    .main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px;
+    }
+
+    /* ── Category filter ── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+    }
+    .result-count {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .categories {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+    }
+    .cat-btn {
+      padding: 8px 18px;
+      border-radius: 100px;
+      border: 1.5px solid var(--border);
+      background: var(--paper);
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .cat-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .cat-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    /* ── Recipe grid ── */
+    .recipe-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+    }
+
+    .recipe-card {
+      background: var(--paper);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .recipe-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px var(--shadow);
+    }
+
+    .card-image {
+      background: var(--warm);
+      height: 160px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4.5rem;
+      position: relative;
+    }
+    .card-category {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      background: var(--ink);
+      color: var(--cream);
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 100px;
+    }
+    .card-difficulty {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      font-size: 0.72rem;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 100px;
+    }
+    .diff-easy { background: #e8f5ee; color: var(--green); }
+    .diff-medium { background: #fef3e2; color: var(--gold); }
+    .diff-hard { background: #fdecea; color: var(--accent); }
+
+    .card-body { padding: 20px; }
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+    .card-desc {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 16px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .card-meta {
+      display: flex;
+      gap: 16px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .meta-item { display: flex; align-items: center; gap: 5px; }
+    .card-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    .tag {
+      background: var(--accent-light);
+      color: var(--accent);
+      font-size: 0.72rem;
+      padding: 3px 10px;
+      border-radius: 100px;
+      font-weight: 500;
+    }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(26,18,8,0.7);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      backdrop-filter: blur(4px);
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--paper);
+      border-radius: 24px;
+      max-width: 680px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slide-up 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes slide-up {
+      from { transform: translateY(40px); opacity: 0; }
+      to   { transform: translateY(0);   opacity: 1; }
+    }
+
+    .modal-header {
+      background: var(--ink);
+      color: var(--cream);
+      padding: 32px;
+      position: relative;
+      border-radius: 24px 24px 0 0;
+    }
+    .modal-emoji { font-size: 4rem; margin-bottom: 12px; display: block; }
+    .modal-category {
+      font-size: 0.72rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+    .modal-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 900;
+      line-height: 1.2;
+      margin-bottom: 10px;
+    }
+    .modal-desc { color: rgba(250,247,242,0.65); line-height: 1.7; font-size: 0.95rem; }
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: white;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .modal-close:hover { background: rgba(255,255,255,0.2); }
+
+    .modal-meta-bar {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .modal-meta-item {
+      flex: 1;
+      padding: 16px;
+      text-align: center;
+      border-right: 1px solid var(--border);
+    }
+    .modal-meta-item:last-child { border-right: none; }
+    .modal-meta-val {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .modal-meta-key {
+      font-size: 0.7rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .modal-body { padding: 28px 32px; }
+    .modal-section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .ingredient-list { list-style: none; margin-bottom: 28px; }
+    .ingredient-list li {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .ingredient-list li::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+    .step-list { list-style: none; }
+    .step-item {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .step-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--ink);
+      color: var(--cream);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .step-text { font-size: 0.92rem; line-height: 1.7; color: var(--ink); padding-top: 4px; }
+
+    /* ── Empty state ── */
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--muted);
+    }
+    .empty-state .empty-emoji { font-size: 4rem; margin-bottom: 16px; }
+    .empty-state h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+
+    /* ── Loading ── */
+    .loading {
+      display: flex;
+      justify-content: center;
+      padding: 60px;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    @media (max-width: 768px) {
+      header { padding: 0 20px; }
+      .search-bar { width: 200px; }
+      .hero { padding: 40px 20px; }
+      .hero-inner { grid-template-columns: 1fr; }
+      .hero-emojis { display: none; }
+      .main { padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div class="logo">Recipe<span>Book</span></div>
+  <div class="search-bar">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="search-input" placeholder="Search recipes..." oninput="handleSearch()"/>
+  </div>
+  <div class="header-right">Flask × AWS × K8s</div>
+</header>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <h1>Cook Something <em>Extraordinary</em> Tonight</h1>
+      <p>Discover hand-curated recipes from around the world, crafted for every skill level and occasion.</p>
+      <div class="hero-stats">
+        <div class="stat">
+          <div class="stat-num" id="total-count">6</div>
+          <div class="stat-label">Recipes</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">6</div>
+          <div class="stat-label">Cuisines</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">3</div>
+          <div class="stat-label">Levels</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-emojis">
+      <div class="hero-emoji-card">🍝</div>
+      <div class="hero-emoji-card">🍛</div>
+      <div class="hero-emoji-card">🥑</div>
+      <div class="hero-emoji-card">🌮</div>
+      <div class="hero-emoji-card">🍄</div>
+      <div class="hero-emoji-card">🥗</div>
+    </div>
+  </div>
+</div>
+
+<!-- Main -->
+<main class="main">
+  <div class="section-header">
+    <h2 class="section-title">All Recipes</h2>
+    <span class="result-count" id="result-count"></span>
+  </div>
+
+  <div class="categories" id="categories">
+    <button class="cat-btn active" onclick="filterCategory('')">All</button>
+  </div>
+
+  <div class="recipe-grid" id="recipe-grid">
+    <div class="loading">Loading recipes...</div>
+  </div>
+</main>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <button class="modal-close" onclick="closeRecipe()">✕</button>
+      <span class="modal-emoji" id="modal-emoji"></span>
+      <div class="modal-category" id="modal-category"></div>
+      <h2 class="modal-title" id="modal-title"></h2>
+      <p class="modal-desc" id="modal-desc"></p>
+    </div>
+    <div class="modal-meta-bar">
+      <div class="modal-meta-item">
+        <div class="modal-meta-val" id="modal-time"></div>
+        <div class="modal-meta-key">Minutes</div>
+      </div>
+      <div class="modal-meta-item">
+        <div class="modal-meta-val" id="modal-servings"></div>
+        <div class="modal-meta-key">Servings</div>
+      </div>
+      <div class="modal-meta-item">
+        <div class="modal-meta-val" id="modal-difficulty"></div>
+        <div class="modal-meta-key">Difficulty</div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <h3 class="modal-section-title">🛒 Ingredients</h3>
+      <ul class="ingredient-list" id="modal-ingredients"></ul>
+      <h3 class="modal-section-title">👨‍🍳 Instructions</h3>
+      <ol class="step-list" id="modal-steps"></ol>
+    </div>
+  </div>
+</div>
+
+<script>
+  let allRecipes = [];
+  let activeCategory = '';
+  let searchTerm = '';
+
+  async function loadCategories() {
+    const res = await fetch('/api/categories');
+    const cats = await res.json();
+    const container = document.getElementById('categories');
+    cats.forEach(cat => {
+      const btn = document.createElement('button');
+      btn.className = 'cat-btn';
+      btn.textContent = cat;
+      btn.onclick = () => filterCategory(cat);
+      container.appendChild(btn);
+    });
+  }
+
+  async function loadRecipes() {
+    let url = '/api/recipes';
+    const params = new URLSearchParams();
+    if (activeCategory) params.set('category', activeCategory);
+    if (searchTerm) params.set('search', searchTerm);
+    if (params.toString()) url += '?' + params.toString();
+
+    const res = await fetch(url);
+    const recipes = await res.json();
+    allRecipes = recipes;
+    renderRecipes(recipes);
+  }
+
+  function renderRecipes(recipes) {
+    const grid = document.getElementById('recipe-grid');
+    const count = document.getElementById('result-count');
+    count.textContent = recipes.length + ' recipe' + (recipes.length !== 1 ? 's' : '');
+
+    if (recipes.length === 0) {
+      grid.innerHTML = `
+        <div class="empty-state" style="grid-column:1/-1">
+          <div class="empty-emoji">🍽️</div>
+          <h3>No recipes found</h3>
+          <p>Try a different search or category.</p>
+        </div>`;
+      return;
+    }
+
+    grid.innerHTML = recipes.map(r => `
+      <div class="recipe-card" onclick="openRecipe(${r.id})">
+        <div class="card-image">
+          <span>${r.image_emoji}</span>
+          <span class="card-category">${r.category}</span>
+          <span class="card-difficulty diff-${r.difficulty.toLowerCase()}">${r.difficulty}</span>
+        </div>
+        <div class="card-body">
+          <h3 class="card-title">${r.title}</h3>
+          <p class="card-desc">${r.description}</p>
+          <div class="card-meta">
+            <span class="meta-item">⏱ ${r.time} min</span>
+            <span class="meta-item">👥 ${r.servings} servings</span>
+            <span class="meta-item">📋 ${r.ingredients.length} ingredients</span>
+          </div>
+          <div class="card-tags">
+            ${r.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function openRecipe(id) {
+    const res = await fetch(`/api/recipes/${id}`);
+    const r = await res.json();
+
+    document.getElementById('modal-emoji').textContent = r.image_emoji;
+    document.getElementById('modal-category').textContent = r.category;
+    document.getElementById('modal-title').textContent = r.title;
+    document.getElementById('modal-desc').textContent = r.description;
+    document.getElementById('modal-time').textContent = r.time;
+    document.getElementById('modal-servings').textContent = r.servings;
+    document.getElementById('modal-difficulty').textContent = r.difficulty;
+
+    document.getElementById('modal-ingredients').innerHTML =
+      r.ingredients.map(i => `<li>${i}</li>`).join('');
+
+    document.getElementById('modal-steps').innerHTML =
+      r.steps.map((s, i) => `
+        <li class="step-item">
+          <span class="step-num">${i + 1}</span>
+          <span class="step-text">${s}</span>
+        </li>`).join('');
+
+    document.getElementById('modal-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeRecipe() {
+    document.getElementById('modal-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function closeModal(e) {
+    if (e.target === document.getElementById('modal-overlay')) closeRecipe();
+  }
+
+  function filterCategory(cat) {
+    activeCategory = cat;
+    document.querySelectorAll('.cat-btn').forEach(btn => {
+      btn.classList.toggle('active',
+        (cat === '' && btn.textContent === 'All') || btn.textContent === cat
+      );
+    });
+    loadRecipes();
+  }
+
+  function handleSearch() {
+    searchTerm = document.getElementById('search-input').value;
+    loadRecipes();
+  }
+
+  // Init
+  loadCategories();
+  loadRecipes();
+</script>
+</body>
+</html>
