@@ -1,3 +1,5 @@
+# deployment.yaml
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -5,80 +7,102 @@ metadata:
   namespace: todo
   labels:
     app: todo-app
+
 spec:
-  replicas: 1
+  replicas: 2
+
   selector:
     matchLabels:
       app: todo-app
+
   strategy:
     type: RollingUpdate
     rollingUpdate:
       maxSurge: 1
       maxUnavailable: 0
+
   template:
     metadata:
       labels:
         app: todo-app
+
     spec:
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
         fsGroup: 1000
+
+      imagePullSecrets:
+        - name: ecr-secret
+
       containers:
         - name: todo-app
           image: IMAGE_PLACEHOLDER
           imagePullPolicy: Always
+
           ports:
             - containerPort: 5000
+
           env:
             - name: SECRET_KEY
               valueFrom:
                 secretKeyRef:
                   name: todo-app-secret
                   key: secret-key
+
             - name: DB_HOST
-              value: "postgres-svc"
+              value: postgres-svc
+
             - name: DB_PORT
               value: "5432"
+
             - name: DB_NAME
               valueFrom:
                 secretKeyRef:
                   name: postgres-secret
                   key: postgres-db
+
             - name: DB_USER
               valueFrom:
                 secretKeyRef:
                   name: postgres-secret
                   key: postgres-user
+
             - name: DB_PASS
               valueFrom:
                 secretKeyRef:
                   name: postgres-secret
                   key: postgres-password
+
           resources:
             requests:
               cpu: "100m"
               memory: "128Mi"
+
             limits:
               cpu: "250m"
               memory: "256Mi"
+
           livenessProbe:
             httpGet:
               path: /health
               port: 5000
             initialDelaySeconds: 60
             periodSeconds: 20
-            failureThreshold: 5  
+            timeoutSeconds: 5
+            failureThreshold: 5
+
           readinessProbe:
             httpGet:
-              path: /health
+              path: /ready
               port: 5000
-            initialDelaySeconds: 30
+            initialDelaySeconds: 20
             periodSeconds: 10
+            timeoutSeconds: 5
             failureThreshold: 5
+
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
-              drop: ["ALL"]
-      imagePullSecrets:
-        - name: ecr-secret
+              drop:
+                - ALL
