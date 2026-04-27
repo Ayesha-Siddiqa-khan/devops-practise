@@ -5,6 +5,7 @@ from datetime import datetime
 import os
 import psycopg2
 import psycopg2.extras
+import threading
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "todo-secret-key")
@@ -262,8 +263,12 @@ def ready():
         }), 500
 
 
-with app.app_context():
-    init_db()
+def start_db_init():
+    with app.app_context():
+        init_db()
+
+
+threading.Thread(target=start_db_init, daemon=True).start()
 
 
 if __name__ == "__main__":
