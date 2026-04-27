@@ -94,12 +94,20 @@ spec:
 
           readinessProbe:
             httpGet:
-              path: /ready
+              path: /health
               port: 5000
-            initialDelaySeconds: 60
+            initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 10
             failureThreshold: 5
+
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 30
 
           securityContext:
             allowPrivilegeEscalation: false
