@@ -1,0 +1,144 @@
+name: CI/CD — Todo App Build, Push & Deploy
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+env:
+  AWS_REGION:     ${{ secrets.AWS_REGION }}
+  ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+  IMAGE_TAG:      ${{ github.sha }}
+
+jobs:
+  # ── 1. Build & Push to ECR ─────────────────────────────────────────────────
+  build-and-push:
+    name: Build Docker Image & Push to ECR
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            ${{ env.AWS_REGION }}
+
+      - name: Log in to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag and push image
+        env:
+          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+        run: |
+          IMAGE_URI="${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}"
+          LATEST_URI="${ECR_REGISTRY}/${ECR_REPOSITORY}:latest"
+          echo "Building $IMAGE_URI"
+          docker build --tag "$IMAGE_URI" --tag "$LATEST_URI" .
+          docker push "$IMAGE_URI"
+          docker push "$LATEST_URI"
+          echo "Pushed: $IMAGE_URI"
+
+  # ── 2. Deploy to Kubernetes ────────────────────────────────────────────────
+  deploy:
+    name: Deploy to Kubernetes
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: "latest"
+
+      - name: Configure kubeconfig
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+        run: |
+          mkdir -p $HOME/.kube
+          printf '%s' "$KUBE_CONFIG" > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Verify cluster connection
+        run: kubectl get nodes
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            ${{ env.AWS_REGION }}
+
+      - name: Create namespace
+        run: kubectl apply -f k8s/00-namespace.yaml
+
+      - name: Create PersistentVolume for PostgreSQL
+        run: kubectl apply -f k8s/01-postgres-pv.yaml
+
+      - name: Create PostgreSQL secret
+        run: |
+          kubectl create secret generic postgres-secret \
+            --namespace todo \
+            --from-literal=postgres-user="todouser" \
+            --from-literal=postgres-password="${{ secrets.POSTGRES_PASSWORD }}" \
+            --from-literal=postgres-db="tododb" \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Create app secret
+        run: |
+          kubectl create secret generic todo-app-secret \
+            --namespace todo \
+            --from-literal=secret-key="${{ secrets.FLASK_SECRET_KEY }}" \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Create ECR image-pull secret
+        run: |
+          ECR_TOKEN=$(aws ecr get-login-password --region "$AWS_REGION")
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          ECR_HOST="${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+          kubectl create secret docker-registry ecr-secret \
+            --namespace todo \
+            --docker-server="$ECR_HOST" \
+            --docker-username=AWS \
+            --docker-password="$ECR_TOKEN" \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Deploy PostgreSQL
+        run: kubectl apply -f k8s/03-postgres-deployment.yaml
+
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          kubectl rollout status deployment/postgres \
+            --namespace todo \
+            --timeout=120s
+
+      - name: Inject image and deploy app
+        run: |
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          ECR_HOST="${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+          IMAGE_URI="${ECR_HOST}/${ECR_REPOSITORY}:${IMAGE_TAG}"
+          echo "Deploying: $IMAGE_URI"
+          sed "s|IMAGE_PLACEHOLDER|${IMAGE_URI}|g" k8s/04-app-deployment.yaml | kubectl apply -f -
+          kubectl apply -f k8s/05-service.yaml
+          kubectl apply -f k8s/06-hpa.yaml
+
+      - name: Wait for app rollout
+        run: |
+          kubectl rollout status deployment/todo-app \
+            --namespace todo \
+            --timeout=180s
+
+      - name: Show status
+        run: |
+          kubectl get pods -n todo
+          kubectl get svc -n todo
+          echo "App running on NodePort 30082"
+          echo "Access at: http://WORKER_PUBLIC_IP:30082"
