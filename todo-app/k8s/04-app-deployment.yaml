@@ -96,9 +96,9 @@ spec:
             httpGet:
               path: /ready
               port: 5000
-            initialDelaySeconds: 20
+            initialDelaySeconds: 60
             periodSeconds: 10
-            timeoutSeconds: 5
+            timeoutSeconds: 10
             failureThreshold: 5
 
           securityContext:
